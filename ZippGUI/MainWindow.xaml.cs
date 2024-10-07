@@ -23,8 +23,8 @@ namespace ZippGUI
         public MainWindow()
         {
             InitializeComponent();
-            Instance instance = new Instance(4, 10, 5, 20);
-            Debug.WriteLine(instance.ToString());
+            SolverManager manager = new SolverManager();
+            Tuple<int[],int[,]> a = manager.generate(4, 10, 5, 20);
         }
     }
 }

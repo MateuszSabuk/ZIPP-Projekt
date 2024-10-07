@@ -127,11 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Instance.h" />
-    <ClInclude Include="ZippAlgorithmsLibrary.h" />
+    <ClInclude Include="Algorithm.h" />
+    <ClInclude Include="Manager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Instance.cpp" />
+    <ClCompile Include="Algorithm.cpp" />
+    <ClCompile Include="Manager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
