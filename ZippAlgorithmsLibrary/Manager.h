@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <stdexcept>
+#include <thread>
 
 #include "Algorithm.h"
 
@@ -19,10 +21,8 @@ public:
 	std::vector<std::string> getAlgorithmNames();
 
 	std::vector<std::vector<std::pair<int, int>>> run(int algId, std::vector<int> machines, std::vector<std::vector<int>> taskTimes);
-	void stop();
 
 private:
 	std::vector<Algorithm> algorithms;
-	bool isSolving = false;
 };
 

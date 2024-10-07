@@ -8,11 +8,11 @@ Manager::Manager()
 
 std::pair<std::vector<int>, std::vector<std::vector<int>>> Manager::generate(int numOfStages, int numOfTasks, int maxNumOfMachinesInStage, int maxTaskTime)
 {
-	//// TODO Validation
-	//if (numOfStages < 1) throw gcnew System::Exception();
-	//if (numOfTasks < 1) throw gcnew System::Exception();
-	//if (maxTaskTime < 1) throw gcnew System::Exception();
-	//if (maxNumOfMachinesInStage < 2) throw gcnew System::Exception();
+	// Argument validation
+	if (numOfStages < 1) throw std::invalid_argument("Number of stages must be higher than zero");
+	if (numOfTasks < 1) throw std::invalid_argument("Number of tasks must be higher than zero");
+	if (maxTaskTime < 1) throw std::invalid_argument("Max task time must be longer than zero");
+	if (maxNumOfMachinesInStage < 2) throw std::invalid_argument("Max number of machines in a stage must be at least two");
 
 	auto machines = std::vector<int>(numOfStages);
 	auto taskTimes = std::vector<std::vector<int>>(numOfTasks, std::vector<int>(numOfStages));
@@ -23,10 +23,15 @@ std::pair<std::vector<int>, std::vector<std::vector<int>>> Manager::generate(int
 	std::uniform_int_distribution<> machineDistrib(1, maxNumOfMachinesInStage);
 	std::uniform_int_distribution<> timeDistrib(1, maxTaskTime);
 
+	bool enoughMachines = false;
 	for (int i = 0; i < machines.size(); i++) {
 		machines[i] = machineDistrib(gen);
+		if (machines[i] > 1) enoughMachines = true;
 	}
-	// TODO Make sure there are at least m+1 machines
+
+	// Make sure there are at least m+1 machines
+	if (!enoughMachines) machines[0]++;
+
 
 	for (int i = 0; i < taskTimes.size(); i++) {
 		for (int j = 0; j < taskTimes[i].size(); j++) {
@@ -48,23 +53,25 @@ std::vector<std::string> Manager::getAlgorithmNames()
 
 std::vector<std::vector<std::pair<int, int>>> Manager::run(int algId, std::vector<int> machines, std::vector<std::vector<int>> taskTimes)
 {
-	// TODO Null or Error propagation
-	// if (isSolving) 
+	// Validate all the arguments
+	if (algId < 0 || algId >= size(algorithms)) throw std::invalid_argument("algId out of range");
+	if (size(taskTimes) == 0) throw std::invalid_argument("Empty task list");
+	if (size(machines) == 0) throw std::invalid_argument("Empty machines list");
+	size_t vecLen = size(machines);
+	int sumOfMachines = 0;
+	for (auto machineNum : machines)
+		sumOfMachines += machineNum;
+	if (sumOfMachines == vecLen) throw std::invalid_argument("Not enough machines");
+	for (auto taskTime : taskTimes)
+		if (vecLen != size(taskTime)) throw std::invalid_argument("Invalid List sizes");
 
-	// TODO Validate arguments
 
-	isSolving = true;
-
-	// TODO Make a thread
-	auto solution = algorithms[algId].run(machines, taskTimes);
-	
-	isSolving = false;
-	return solution;
-}
-
-void Manager::stop()
-{
-	// TODO
-	// if (isSolving) killRunningThread();
-	isSolving = false;
+	// Run the algorithm
+	try {
+		auto solution = algorithms[algId].run(machines, taskTimes);
+		return solution;
+	}
+	catch (...) {
+		throw;
+	}
 }
