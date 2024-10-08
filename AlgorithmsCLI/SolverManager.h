@@ -10,7 +10,8 @@ namespace CLI
         SolverManager();
         Tuple<array<int>^, array<int, 2>^>^ generate(int numOfStages, int numOfTasks, int maxNumOfMachinesInStage, int maxTaskTime);
         array<String^>^ getAlgorithmNames();
-        array<Tuple<int>^, 2>^ run(int algId, array<int>^ machines, array<int, 2>^ taskTimes);
+        
+        array<Tuple<int,int>^, 2>^ run(int algId, array<int>^ machines, array<int, 2>^ taskTimes);
         
     private:
         static array<int>^ vec2array(const std::vector<int>& data);

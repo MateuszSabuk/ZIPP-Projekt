@@ -28,37 +28,52 @@ namespace CLI
         return names;
     }
 
-    array<Tuple<int>^, 2>^ SolverManager::run(int algId, array<int>^ machines, array<int, 2>^ taskTimes)
+    array<Tuple<int, int>^, 2>^ SolverManager::run(int algId, array<int>^ machines, array<int, 2>^ taskTimes)
     {
-        std::vector<int> nativeMachines(machines->Length);
-        for (int i = 0; i < machines->Length; i++) {
-            nativeMachines[i] = machines[i];
+        // Convert managed array<int> to std::vector<int>
+        std::vector<int> machineVec(machines->Length);
+        for (int i = 0; i < machines->Length; i++)
+        {
+            machineVec[i] = machines[i];
         }
 
-        int rows = taskTimes->GetLength(0);
-        int cols = taskTimes->GetLength(1);
-        std::vector<std::vector<int>> nativeTaskTimes(rows, std::vector<int>(cols));
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                nativeTaskTimes[i][j] = taskTimes[i, j];
+        // Convert managed array<int, 2> to std::vector<std::vector<int>>
+        std::vector<std::vector<int>> taskTimesVec;
+        for (int i = 0; i < taskTimes->GetLength(0); i++)
+        {
+            std::vector<int> taskRow;
+            for (int j = 0; j < taskTimes->GetLength(1); j++)
+            {
+                taskRow.push_back(int(taskTimes[i, j]));
             }
+            taskTimesVec.push_back(taskRow);
         }
+        
+        // Call the C++ function
+        try {
+            auto solution = m_Instance->run(algId, machineVec, taskTimesVec);
 
-        std::vector<std::vector<std::pair<int, int>>> nativeResult = m_Instance->run(algId, nativeMachines, nativeTaskTimes);
+            // Convert std::vector<std::vector<std::pair<int, int>>> to array<Tuple<int, int>^, 2>
+            int rows = static_cast<int>(solution.size());
+            int cols = static_cast<int>(solution.empty() ? 0 : solution[0].size());
 
-        int resultRows = nativeResult.size();
-        int resultCols = resultRows > 0 ? nativeResult[0].size() : 0;
+            array<Tuple<int, int>^, 2>^ result = gcnew array<Tuple<int, int>^, 2>(rows, cols);
 
-        array<Tuple<int>^, 2>^ managedResult = gcnew array<Tuple<int>^, 2>(resultRows, resultCols);
-
-        for (int i = 0; i < resultRows; i++) {
-            for (int j = 0; j < resultCols; j++) {
-                managedResult[i, j] = gcnew Tuple<int>(nativeResult[i][j].first);
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    result[i, j] = gcnew Tuple<int, int>(solution[i][j].first, solution[i][j].second);
+                }
             }
+
+            return result;
+        }
+        catch (...)
+        {
+            // TODO Error handling
         }
 
-        return managedResult;
     }
 
     array<int>^ SolverManager::vec2array(const std::vector<int>& data)
