@@ -58,9 +58,9 @@
             <StackPanel Margin="0,20,0,0">
                 <Label Content="Choose Algorithm" FontWeight="Bold" Margin="0,0,0,5"/>
                 <ComboBox x:Name="AlgorithmChoice" Width="120" Height="30" 
-                          Initialized="AlgorithmChoice_Initialized"
+                          Loaded="AlgorithmChoice_Loaded"
                           Padding="5" 
-                          Margin="0,0,0,0">
+                          Margin="0,0,0,0" SelectionChanged="AlgorithmChoice_SelectionChanged">
                     <ComboBox.Resources>
                         <Style TargetType="ComboBox">
                             <Setter Property="Margin" Value="0"/>
@@ -71,6 +71,14 @@
                         </Style>
                     </ComboBox.Resources>
                 </ComboBox>
+            </StackPanel>
+
+            <!-- Scrollable area for additional inputs -->
+            <StackPanel Margin="0,20,0,0">
+                <Label Content="Algorithm Parameters" FontWeight="Bold" Margin="0,0,0,5"/>
+                <ScrollViewer Height="200" VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="AlgorithmParamsPanel" />
+                </ScrollViewer>
             </StackPanel>
 
             <!-- Generate Button -->
@@ -84,6 +92,17 @@
                     FontWeight="Bold" 
                     Click="GenerateButtonClick"/>
 
+            <!-- Set params Button -->
+            <Button Content="Set params" 
+                    HorizontalAlignment="Left" 
+                    Height="56" 
+                    Width="122" 
+                    Margin="0,20,0,10" 
+                    Background="#4CAF50" 
+                    Foreground="White" 
+                    FontWeight="Bold" 
+                    Click="SetParametersButtonClick"/>
+
             <!-- Run Button -->
             <Button Content="Run" 
                     HorizontalAlignment="Left" 
@@ -95,6 +114,8 @@
                     Click="Run_Button_Click"/>
 
         </StackPanel>
+
+        
         <!-- TextBlock to display generated text -->
         <TextBlock x:Name="GeneratedText" 
                        HorizontalAlignment="Left" 

@@ -59,7 +59,7 @@ namespace ZippGUI
             e.Handled = !regex.IsMatch(e.Text);
         }
 
-        private void AlgorithmChoice_Initialized(object sender, EventArgs e)
+        private void AlgorithmChoice_Loaded(object sender, EventArgs e)
         {
             string[] algorithmNames = manager.getAlgorithmNames();
 
@@ -108,6 +108,58 @@ namespace ZippGUI
             }
 
             return str.ToString();
+        }
+
+        private void PopulateAlgorithmParams(int algId)
+        {
+            // Get the algorithm parameters from the getAlgorithmParams method
+            Dictionary<string, int> parameters = manager.getAlgorithmParams(algId);
+
+            // Clear existing children in the AlgorithmParamsPanel
+            AlgorithmParamsPanel.Children.Clear();
+
+            foreach (var param in parameters)
+            {
+                // Create a StackPanel to hold the label and textbox
+                StackPanel paramPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 5) };
+
+                // Create the label for the parameter
+                Label label = new Label
+                {
+                    Content = param.Key,
+                    Width = 150,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                // Create the TextBox for the parameter value
+                TextBox textBox = new TextBox
+                {
+                    Width = 100,
+                    Text = param.Value.ToString(),
+                    Background = System.Windows.Media.Brushes.White,
+                    BorderBrush = System.Windows.Media.Brushes.Gray,
+                    Padding = new Thickness(5),
+                    Margin = new Thickness(10, 0, 0, 0)
+                };
+
+                // Add the label and textbox to the paramPanel
+                paramPanel.Children.Add(label);
+                paramPanel.Children.Add(textBox);
+
+                // Add the paramPanel to the AlgorithmParamsPanel
+                AlgorithmParamsPanel.Children.Add(paramPanel);
+            }
+        }
+
+        private void AlgorithmChoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            PopulateAlgorithmParams(AlgorithmChoice.SelectedIndex);
+        }
+
+
+        private void SetParametersButtonClick(object sender, RoutedEventArgs e)
+        {
+            // TODO Setting parameters
         }
     }
 }
