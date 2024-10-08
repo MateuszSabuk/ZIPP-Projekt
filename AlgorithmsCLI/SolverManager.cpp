@@ -17,6 +17,50 @@ namespace CLI
         return gcnew Tuple<array<int>^, array<int, 2>^>(machines, taskTimes);
     }
 
+    array<String^>^ SolverManager::getAlgorithmNames()
+    {
+        std::vector<std::string> namesVec = m_Instance->getAlgorithmNames();
+        array<String^>^ names = gcnew array<String^>(size(namesVec));
+        for (auto i = 0; i < size(namesVec); i++)
+        {
+            names[i] = gcnew String(namesVec[i].c_str());
+        }
+        return names;
+    }
+
+    array<Tuple<int>^, 2>^ SolverManager::run(int algId, array<int>^ machines, array<int, 2>^ taskTimes)
+    {
+        std::vector<int> nativeMachines(machines->Length);
+        for (int i = 0; i < machines->Length; i++) {
+            nativeMachines[i] = machines[i];
+        }
+
+        int rows = taskTimes->GetLength(0);
+        int cols = taskTimes->GetLength(1);
+        std::vector<std::vector<int>> nativeTaskTimes(rows, std::vector<int>(cols));
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                nativeTaskTimes[i][j] = taskTimes[i, j];
+            }
+        }
+
+        std::vector<std::vector<std::pair<int, int>>> nativeResult = m_Instance->run(algId, nativeMachines, nativeTaskTimes);
+
+        int resultRows = nativeResult.size();
+        int resultCols = resultRows > 0 ? nativeResult[0].size() : 0;
+
+        array<Tuple<int>^, 2>^ managedResult = gcnew array<Tuple<int>^, 2>(resultRows, resultCols);
+
+        for (int i = 0; i < resultRows; i++) {
+            for (int j = 0; j < resultCols; j++) {
+                managedResult[i, j] = gcnew Tuple<int>(nativeResult[i][j].first);
+            }
+        }
+
+        return managedResult;
+    }
+
     array<int>^ SolverManager::vec2array(const std::vector<int>& data)
     {
         auto size = static_cast<int>(data.size());
