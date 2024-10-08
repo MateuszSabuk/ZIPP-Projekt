@@ -1,4 +1,5 @@
 #include "SolverManager.h"
+
 namespace CLI
 {
     SolverManager::SolverManager()
@@ -28,6 +29,28 @@ namespace CLI
         return names;
     }
 
+    System::Collections::Generic::Dictionary<String^, int>^ SolverManager::getAlgorithmParams(int algId)
+    {
+        auto dict = gcnew System::Collections::Generic::Dictionary<String^, int>();
+        for (const auto& pair : m_Instance->getAlgorithmParams(algId)) {
+            dict->Add(gcnew String(pair.first.c_str()), pair.second);
+        }
+        return dict;
+    }
+
+    void SolverManager::setAlgorithmParams(int algId, System::Collections::Generic::Dictionary<String^, int>^ params)
+    {
+        std::unordered_map<std::string, int> paramsMap;
+        for each (System::Collections::Generic::KeyValuePair<String^, int> pair in params)
+        {
+            // Use marshal_as to convert String^ to std::string
+            std::string key;
+            MarshalString(pair.Key, key);
+            paramsMap.insert({ key, pair.Value });
+        }
+        m_Instance->setAlgorithmParams(algId, paramsMap);
+    }
+
     array<Tuple<int, int>^, 2>^ SolverManager::run(int algId, array<int>^ machines, array<int, 2>^ taskTimes)
     {
         // Convert managed array<int> to std::vector<int>
@@ -48,7 +71,7 @@ namespace CLI
             }
             taskTimesVec.push_back(taskRow);
         }
-        
+
         // Call the C++ function
         try {
             auto solution = m_Instance->run(algId, machineVec, taskTimesVec);
@@ -90,10 +113,18 @@ namespace CLI
     {
         int s = static_cast<int>(data[0].size());
         int n = static_cast<int>(data.size());
-        array<int, 2>^ managedArray = gcnew array<int, 2>(n,s);
+        array<int, 2>^ managedArray = gcnew array<int, 2>(n, s);
         for (int i = 0; i < n; i++)
             for (int j = 0; j < s; j++)
                 managedArray[i, j] = data[i][j];
         return managedArray;
+    }
+
+    void SolverManager::MarshalString(String^ s, std::string& os) {
+        using namespace Runtime::InteropServices;
+        const char* chars =
+            (const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
+        os = chars;
+        Marshal::FreeHGlobal(IntPtr((void*)chars));
     }
 }
