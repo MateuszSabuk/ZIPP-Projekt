@@ -1,5 +1,10 @@
 #include "Algorithm.h"
 
+std::string Algorithm::getName()
+{
+    return name;
+}
+
 std::unordered_map<std::string, int> Algorithm::getParams()
 {
 	return parameters;

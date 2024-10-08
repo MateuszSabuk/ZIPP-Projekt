@@ -3,8 +3,7 @@
 Manager::Manager()
 {
 	//// TODO Add all algorithms
-	// algorithms.push_back(annealing or something)
-	
+	algorithms.push_back(std::make_unique<Bruteforce>());
 }
 
 std::pair<std::vector<int>, std::vector<std::vector<int>>> Manager::generate(int numOfStages, int numOfTasks, int maxNumOfMachinesInStage, int maxTaskTime)
@@ -47,22 +46,21 @@ std::vector<std::string> Manager::getAlgorithmNames()
 {
 	std::vector<std::string> names;
 	for (auto it = begin(algorithms); it != end(algorithms); ++it) {
-		names.push_back(it->name);
+		names.push_back((*it)->getName());
 	}
-	//return names;
-	return std::vector<std::string>({ "a","b","c" });
+	return names;
 }
 
 std::unordered_map<std::string, int> Manager::getAlgorithmParams(int algId)
 {
 	if (algId < 0 || algId >= size(algorithms)) throw std::invalid_argument("algId out of range");
-	return algorithms[algId].getParams();
+	return algorithms[algId]->getParams();
 }
 
 void Manager::setAlgorithmParams(int algId, std::unordered_map<std::string, int> params)
 {
 	if (algId < 0 || algId >= size(algorithms)) throw std::invalid_argument("algId out of range");
-	algorithms[algId].getParams();
+	algorithms[algId]->getParams();
 }
 
 std::vector<std::vector<std::pair<int, int>>> Manager::run(int algId, std::vector<int> machines, std::vector<std::vector<int>> taskTimes)
@@ -82,7 +80,7 @@ std::vector<std::vector<std::pair<int, int>>> Manager::run(int algId, std::vecto
 
 	// Run the algorithm
 	try {
-		auto solution = algorithms[algId].run(machines, taskTimes);
+		auto solution = algorithms[algId]->run(machines, taskTimes);
 		return solution;
 	}
 	catch (...) {
