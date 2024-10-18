@@ -13,9 +13,13 @@ public:
     std::string getName();
     std::unordered_map<std::string, int> getParams();
     void setParams(std::unordered_map<std::string, int> params);
-    virtual std::vector<std::vector<std::pair<int, int>>> run(std::vector<int> machines, std::vector<std::vector<int>> taskTimes) = 0;
+    std::vector<std::vector<std::pair<int, int>>> run(std::vector<int> machines, std::vector<std::vector<int>> taskTimes);
+    void cancel();
 
 protected:
     const std::string name;
+    bool isCanceled = false;
     std::unordered_map<std::string, int> parameters;
+
+    virtual std::vector<std::vector<std::pair<int, int>>> start(std::vector<int> machines, std::vector<std::vector<int>> taskTimes) = 0;
 };

@@ -87,3 +87,10 @@ std::vector<std::vector<std::pair<int, int>>> Manager::run(int algId, std::vecto
 		throw;
 	}
 }
+
+void Manager::cancelAlgorithm()
+{
+	for (auto it = begin(algorithms); it != end(algorithms); ++it) {
+		(*it)->cancel();
+	}
+}

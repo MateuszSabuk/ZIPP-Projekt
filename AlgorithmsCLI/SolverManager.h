@@ -15,6 +15,7 @@ namespace CLI
         void setAlgorithmParams(int algId, System::Collections::Generic::Dictionary<String^, int>^ params);
 
         array<Tuple<int,int>^, 2>^ run(int algId, array<int>^ machines, array<int, 2>^ taskTimes);
+        void cancelAlgorithm();
         
     private:
         static array<int>^ vec2array(const std::vector<int>& data);

@@ -22,3 +22,13 @@ void Algorithm::setParams(std::unordered_map<std::string, int> params)
         }
     }
 }
+
+void Algorithm::cancel()
+{
+    isCanceled = true;
+}
+
+std::vector<std::vector<std::pair<int, int>>> Algorithm::run(std::vector<int> machines, std::vector<std::vector<int>> taskTimes) {
+    isCanceled = false;
+    return start(machines, taskTimes);
+}

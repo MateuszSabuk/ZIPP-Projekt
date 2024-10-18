@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Threading;
 
 using CLI;
 
@@ -23,7 +24,11 @@ namespace ZippGUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        SolverManager manager;
+        private SolverManager manager;
+        private int[] machines = { };
+        private int[,] taskTimes = { };
+        private Thread? runThread;
+
         public MainWindow()
         {
             manager = new SolverManager();
@@ -37,15 +42,19 @@ namespace ZippGUI
 
         private void GenerateButtonClick(object sender, RoutedEventArgs e)
         {
+            if (runThread != null && runThread.IsAlive) return;
             try
             {
                 int s = int.Parse(numOfStages.Text);
                 int n = int.Parse(numOfTasks.Text);
                 int maxMIS = int.Parse(maxNumOfMachinesInStage.Text);
                 int maxTT = int.Parse(maxTaskTime.Text);
-                Tuple<int[], int[,]> _ = manager.generate(s, n, maxMIS, maxTT);
-                GeneratedText.Text = tuple2string(_);
-                // TODO save it and display nicely
+                Tuple<int[], int[,]> data = manager.generate(s, n, maxMIS, maxTT);
+                GeneratedText.Text = tuple2string(data);
+                machines = data.Item1;
+                taskTimes = data.Item2;
+
+                // TODO display nicely
             }
             catch (Exception ex)
             {
@@ -72,9 +81,27 @@ namespace ZippGUI
 
         private void Run_Button_Click(object sender, RoutedEventArgs e)
         {
+            if (runThread != null && runThread.IsAlive) return;
             int algId = AlgorithmChoice.SelectedIndex;
-            //manager.run(algId, ...);
+            
+            runThread = new Thread(new ThreadStart(() =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    RunButton.IsEnabled = false;
+                    StopButton.IsEnabled = true;
+                });
+                manager.run(algId, machines, taskTimes);
+                Dispatcher.Invoke(() =>
+                {
+                    RunButton.IsEnabled = true;
+                    StopButton.IsEnabled = false;
+                });
+            }));
+            runThread.Start();
         }
+
+
 
         private string tuple2string(Tuple<int[], int[,]> instance)
         {
@@ -153,13 +180,32 @@ namespace ZippGUI
 
         private void AlgorithmChoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (runThread != null && runThread.IsAlive) return;
             PopulateAlgorithmParams(AlgorithmChoice.SelectedIndex);
         }
 
 
         private void SetParametersButtonClick(object sender, RoutedEventArgs e)
         {
-            // TODO Setting parameters
+            if (runThread != null && runThread.IsAlive) return;
+            Dictionary<string, int> parameters = new Dictionary<string, int>();
+            foreach (StackPanel stackPanel in AlgorithmParamsPanel.Children)
+            {
+                string name = stackPanel.Children.OfType<Label>().First().Content.ToString();
+                int value = int.Parse(stackPanel.Children.OfType<TextBox>().First().Text);
+                parameters[name] = value;
+            }
+            manager.setAlgorithmParams(AlgorithmChoice.SelectedIndex, parameters);
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            manager.cancelAlgorithm();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            manager.cancelAlgorithm();
         }
     }
 }

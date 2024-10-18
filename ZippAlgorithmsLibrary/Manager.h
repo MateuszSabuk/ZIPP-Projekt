@@ -24,6 +24,7 @@ public:
 	void setAlgorithmParams(int algId, std::unordered_map<std::string, int> params);
 
 	std::vector<std::vector<std::pair<int, int>>> run(int algId, std::vector<int> machines, std::vector<std::vector<int>> taskTimes);
+	void cancelAlgorithm();
 
 private:
 	std::vector<std::unique_ptr<Algorithm>> algorithms;

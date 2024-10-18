@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ZippGUI"
         mc:Ignorable="d"
         Title="MainWindow" Height="935" Width="1306"
-        Background="#F0F0F0" SizeToContent="Height">
+        Background="#F0F0F0" SizeToContent="Height" Closing="Window_Closing">
     <Grid Margin="20">
         <StackPanel Orientation="Horizontal">
         <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -134,16 +134,28 @@
                        Foreground="#333333"
                    />
 
-                <!-- Run Button -->
-                <Button Content="Run" 
-                    VerticalAlignment="Bottom"
+                    <!-- Run Button -->
+                    <Button Content="Run" 
+                    Name="RunButton"
                     Height="56" 
                     Width="122" 
                     Background="#2196F3" 
                     Foreground="White" 
                     FontWeight="Bold" 
-                    Click="Run_Button_Click"/>
-            </Grid>
+                    Click="Run_Button_Click" Margin="39,677,39,83"/>
+
+                    <!-- Stop Button -->
+                    <Button Content="Stop" 
+                    IsEnabled="False"
+                    Name="StopButton"
+                    VerticalAlignment="Bottom"
+                    Height="56" 
+                    Width="122" 
+                    Background="#ff2222" 
+                    Foreground="White" 
+                    FontWeight="Bold" 
+                    Click="StopButton_Click"/>
+                </Grid>
         </GroupBox>
         </StackPanel>
     </Grid>

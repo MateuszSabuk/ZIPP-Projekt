@@ -99,6 +99,11 @@ namespace CLI
 
     }
 
+    void SolverManager::cancelAlgorithm()
+    {
+        m_Instance->cancelAlgorithm();
+    }
+
     array<int>^ SolverManager::vec2array(const std::vector<int>& data)
     {
         auto size = static_cast<int>(data.size());
