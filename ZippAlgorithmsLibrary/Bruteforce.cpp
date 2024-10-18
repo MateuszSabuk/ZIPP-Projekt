@@ -19,7 +19,18 @@ Bruteforce::Bruteforce() : Algorithm("Bruteforce")
 
 std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int> machines, std::vector<std::vector<int>> taskTimes)
 {
-	while (!isCanceled)
-	Sleep(1);
-	return std::vector<std::vector<std::pair<int, int>>>();
+	auto result = std::vector<std::vector<std::pair<int, int>>>(size(taskTimes), std::vector<std::pair<int, int>>(size(machines)));
+
+	int counter = 0;
+	for (auto & task : result)
+	{
+		for (auto & tuple : task)
+		{
+			if (isCanceled) return std::vector<std::vector<std::pair<int, int>>>();
+			tuple.first = counter++;
+			tuple.second = counter++;
+		}
+	}
+
+	return result;
 }

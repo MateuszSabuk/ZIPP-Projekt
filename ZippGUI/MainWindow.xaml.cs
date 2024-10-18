@@ -50,7 +50,7 @@ namespace ZippGUI
                 int maxMIS = int.Parse(maxNumOfMachinesInStage.Text);
                 int maxTT = int.Parse(maxTaskTime.Text);
                 Tuple<int[], int[,]> data = manager.generate(s, n, maxMIS, maxTT);
-                GeneratedText.Text = tuple2string(data);
+                GeneratedText.Text = generatedTuple2string(data);
                 machines = data.Item1;
                 taskTimes = data.Item2;
 
@@ -91,9 +91,10 @@ namespace ZippGUI
                     RunButton.IsEnabled = false;
                     StopButton.IsEnabled = true;
                 });
-                manager.run(algId, machines, taskTimes);
+                var result = manager.run(algId, machines, taskTimes);
                 Dispatcher.Invoke(() =>
                 {
+                    AnswerText.Text = answerTuple2string(result);
                     RunButton.IsEnabled = true;
                     StopButton.IsEnabled = false;
                 });
@@ -103,7 +104,7 @@ namespace ZippGUI
 
 
 
-        private string tuple2string(Tuple<int[], int[,]> instance)
+        private string generatedTuple2string(Tuple<int[], int[,]> instance)
         {
             // Extract machines and taskTimes from the Tuple
             int[] machines = instance.Item1;
@@ -135,6 +136,34 @@ namespace ZippGUI
             }
 
             return str.ToString();
+        }
+        public static string answerTuple2string(Tuple<int, int>[,] tuples)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            // Get the dimensions of the 2D array
+            int rows = tuples.GetLength(0);
+            int cols = tuples.GetLength(1);
+
+            // Loop through the array to format each tuple
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    var tuple = tuples[i, j];
+                    sb.Append($"({tuple.Item1}, {tuple.Item2})");
+
+                    // Add a space between tuples except for the last one in the row
+                    if (j < cols - 1)
+                    {
+                        sb.Append("  ");
+                    }
+                }
+                // Add a new line after each row
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
         }
 
         private void PopulateAlgorithmParams(int algId)
