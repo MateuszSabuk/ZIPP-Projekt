@@ -24,11 +24,11 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int>
 	int counter = 0;
 	for (auto & task : result)
 	{
-		for (auto & tuple : task)
+		for (auto& tuple : task)
 		{
 			if (isCanceled) return std::vector<std::vector<std::pair<int, int>>>();
-			tuple.first = counter++;
-			tuple.second = counter++;
+			tuple.first = parameters["Test parameter"]++;
+			tuple.second = counter++ + parameters["Test parameter"];
 		}
 	}
 

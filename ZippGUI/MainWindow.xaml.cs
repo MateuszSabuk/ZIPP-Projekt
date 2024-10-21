@@ -139,6 +139,7 @@ namespace ZippGUI
         }
         public static string answerTuple2string(Tuple<int, int>[,] tuples)
         {
+            if (tuples == null) return "no results";
             StringBuilder sb = new StringBuilder();
 
             // Get the dimensions of the 2D array

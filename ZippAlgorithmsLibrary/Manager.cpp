@@ -60,7 +60,7 @@ std::unordered_map<std::string, int> Manager::getAlgorithmParams(int algId)
 void Manager::setAlgorithmParams(int algId, std::unordered_map<std::string, int> params)
 {
 	if (algId < 0 || algId >= size(algorithms)) throw std::invalid_argument("algId out of range");
-	algorithms[algId]->getParams();
+	algorithms[algId]->setParams(params);
 }
 
 std::vector<std::vector<std::pair<int, int>>> Manager::run(int algId, std::vector<int> machines, std::vector<std::vector<int>> taskTimes)
