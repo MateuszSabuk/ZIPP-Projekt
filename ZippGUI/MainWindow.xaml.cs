@@ -58,7 +58,7 @@ namespace ZippGUI
             }
             catch (Exception ex)
             {
-                // TODO Exception handling
+                MessageBox.Show(ex.Message, "Generate error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -91,7 +91,17 @@ namespace ZippGUI
                     RunButton.IsEnabled = false;
                     StopButton.IsEnabled = true;
                 });
-                var result = manager.run(algId, machines, taskTimes);
+                Tuple<int, int>[,]? result = null;
+                try
+                {
+                    result = manager.run(algId, machines, taskTimes);
+                } catch (Exception ex)
+                {
+                    if (ex.Message != "canceled")
+                    {
+                        MessageBox.Show(ex.Message, "Run Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
                 Dispatcher.Invoke(() =>
                 {
                     AnswerText.Text = answerTuple2string(result);
@@ -101,8 +111,6 @@ namespace ZippGUI
             }));
             runThread.Start();
         }
-
-
 
         private string generatedTuple2string(Tuple<int[], int[,]> instance)
         {
@@ -137,7 +145,7 @@ namespace ZippGUI
 
             return str.ToString();
         }
-        public static string answerTuple2string(Tuple<int, int>[,] tuples)
+        public static string answerTuple2string(Tuple<int, int>[,]? tuples)
         {
             if (tuples == null) return "no results";
             StringBuilder sb = new StringBuilder();
@@ -214,14 +222,15 @@ namespace ZippGUI
             PopulateAlgorithmParams(AlgorithmChoice.SelectedIndex);
         }
 
-
+        
         private void SetParametersButtonClick(object sender, RoutedEventArgs e)
         {
             if (runThread != null && runThread.IsAlive) return;
             Dictionary<string, int> parameters = new Dictionary<string, int>();
             foreach (StackPanel stackPanel in AlgorithmParamsPanel.Children)
             {
-                string name = stackPanel.Children.OfType<Label>().First().Content.ToString();
+                string? name = stackPanel.Children.OfType<Label>().First().Content.ToString();
+                name = name == null ? string.Empty : name; // Ensure name is not null
                 int value = int.Parse(stackPanel.Children.OfType<TextBox>().First().Text);
                 parameters[name] = value;
             }
@@ -233,6 +242,7 @@ namespace ZippGUI
             manager.cancelAlgorithm();
         }
 
+        // Make sure all running threads are stopped
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             manager.cancelAlgorithm();

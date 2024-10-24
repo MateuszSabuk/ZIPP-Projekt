@@ -2,16 +2,20 @@
 
 namespace CLI
 {
-    SolverManager::SolverManager()
-        : ManagedObject(new Manager())
-    {
-        //Console::WriteLine("Creating a new Entity-wrapper object!");
-    }
+    // Create manager
+    SolverManager::SolverManager() : ManagedObject(new Manager()){}
 
     Tuple<array<int>^, array<int, 2>^>^ SolverManager::generate(int numOfStages, int numOfTasks, int maxNumOfMachinesInStage, int maxTaskTime)
     {
-        std::pair<std::vector<int>, std::vector<std::vector<int>>> data =
-            m_Instance->generate(numOfStages, numOfTasks, maxNumOfMachinesInStage, maxTaskTime);
+        // Generate data
+        std::pair<std::vector<int>, std::vector<std::vector<int>>> data;
+        try {
+             data = m_Instance->generate(numOfStages, numOfTasks, maxNumOfMachinesInStage, maxTaskTime);
+        }
+        catch (std::invalid_argument ex) {
+            throw gcnew Exception(gcnew String(ex.what()));
+        }
+        // Convert data to C# types
         auto machines = vec2array(data.first);
         auto taskTimes = vec2array2d(data.second);
 
@@ -78,8 +82,8 @@ namespace CLI
 
             // Convert std::vector<std::vector<std::pair<int, int>>> to array<Tuple<int, int>^, 2>
             int rows = static_cast<int>(solution.size());
-            int cols = static_cast<int>(solution.empty() ? 0 : solution[0].size());
-
+            int cols = static_cast<int>(solution.empty() ? 0 : size(solution[0]));
+            
             array<Tuple<int, int>^, 2>^ result = gcnew array<Tuple<int, int>^, 2>(rows, cols);
 
             for (int i = 0; i < rows; i++)
@@ -92,17 +96,23 @@ namespace CLI
 
             return result;
         }
-        catch (...)
-        {
-            // TODO Error handling
+        catch (const char* ex) {
+            throw gcnew Exception(gcnew String(ex));
         }
-
+        catch (std::invalid_argument ex) {
+            throw gcnew Exception(gcnew String(ex.what()));
+        }
+        catch (...) {
+            throw;
+        }
     }
 
     void SolverManager::cancelAlgorithm()
     {
         m_Instance->cancelAlgorithm();
     }
+
+    // Conversion helper functions
 
     array<int>^ SolverManager::vec2array(const std::vector<int>& data)
     {
