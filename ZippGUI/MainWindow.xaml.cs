@@ -53,12 +53,33 @@ namespace ZippGUI
                 GeneratedText.Text = generatedTuple2string(data);
                 machines = data.Item1;
                 taskTimes = data.Item2;
-
-                // TODO display nicely
+                populateVisualisation();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Generate error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void populateVisualisation()
+        {
+            VisualisationStackPanel.Children.Clear();
+            foreach (int machineNum in machines)
+            {
+                StackPanel machineRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 5) };
+
+                for (int i = 0; i < machineNum; i++)
+                {
+                    Canvas canvas = new Canvas
+                    {
+                        Width = 40,
+                        Height = 40,
+                        Background = Brushes.Gray,
+                        Margin = new Thickness(5, 5, 0, 0)
+                    };
+                    machineRow.Children.Add(canvas);
+                }
+                VisualisationStackPanel.Children.Add(machineRow);
             }
         }
 
