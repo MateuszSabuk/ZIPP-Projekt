@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Reflection.PortableExecutable;
+using System.Collections;
 
 namespace ZippGUI
 {
@@ -28,6 +29,7 @@ namespace ZippGUI
         private int[] machines = { };
         private int[,] taskTimes = { };
         private Thread? runThread;
+        private Stack<string> visualisationTaskNames = new Stack<string>();
 
         public MainWindow()
         {
@@ -63,23 +65,31 @@ namespace ZippGUI
 
         private void populateVisualisation()
         {
-            VisualisationStackPanel.Children.Clear();
-            foreach (int machineNum in machines)
+            while (visualisationTaskNames.Count > 0)
             {
-                StackPanel machineRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 5) };
+                string name = visualisationTaskNames.Pop();
+                if (FindName(name) is FrameworkElement)
+                UnregisterName(name);
+            }
+            VisualisationStackPanel.Children.Clear();
+            for (int stageIndex = 0; stageIndex < machines.Length; stageIndex++)
+            {
+                StackPanel stageRow = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(0, 5, 0, 5) };
 
-                for (int i = 0; i < machineNum; i++)
+                for (int machineIndex = 0; machineIndex < machines[stageIndex]; machineIndex++)
                 {
-                    Canvas canvas = new Canvas
+                    visualisationTaskNames.Push("machineRow_stage" + stageIndex + "_machine" + machineIndex);
+                    Canvas machineRow = new Canvas
                     {
-                        Width = 40,
-                        Height = 40,
+                        Name = visualisationTaskNames.Peek(),
+                        Height = 15,
                         Background = Brushes.Gray,
-                        Margin = new Thickness(5, 5, 0, 0)
+                        Margin = new Thickness(5, 2, 0, 0)
                     };
-                    machineRow.Children.Add(canvas);
+                    RegisterName(machineRow.Name, machineRow);
+                    stageRow.Children.Add(machineRow);
                 }
-                VisualisationStackPanel.Children.Add(machineRow);
+                VisualisationStackPanel.Children.Add(stageRow);
             }
         }
 
@@ -125,12 +135,46 @@ namespace ZippGUI
                 }
                 Dispatcher.Invoke(() =>
                 {
-                    AnswerText.Text = answerTuple2string(result);
+                    visualizeSchedule(result);
                     RunButton.IsEnabled = true;
                     StopButton.IsEnabled = false;
                 });
             }));
             runThread.Start();
+        }
+
+        private void visualizeSchedule(Tuple<int, int>[,]? result)
+        {
+            if (result == null)
+            {
+                AnswerText.Text = "no results";
+                return;
+            }
+            AnswerText.Text = answerTuple2string(result);
+            List<SolidColorBrush> colorTable = GenerateEvenlySpacedColorTable(taskTimes.Length);
+
+            for (int taskIndex = 0; taskIndex < result.GetLength(0); taskIndex++)
+            {
+                for (int stageIndex = 0; stageIndex < result.GetLength(1); stageIndex++)
+                {
+                    object node = FindName("machineRow_stage" + stageIndex + "_machine" + result[taskIndex, stageIndex].Item1);
+                    if (node is Canvas)
+                    {
+                        Canvas machineRow = node as Canvas;
+
+                        Canvas task = new Canvas
+                        {
+                            Name = "machine" + result[taskIndex, stageIndex].Item1 + "_stage" + stageIndex,
+                            Height = machineRow.Height,
+                            Width = taskTimes[taskIndex,stageIndex] * 5,
+                            Background = colorTable[taskIndex],
+                        };
+                        Canvas.SetLeft(task, result[taskIndex, stageIndex].Item2 * 5);
+                        task.Children.Add(new TextBlock { Text = taskIndex.ToString() });
+                        machineRow.Children.Add(task);
+                    }
+                }
+            }
         }
 
         private string generatedTuple2string(Tuple<int[], int[,]> instance)
@@ -267,6 +311,43 @@ namespace ZippGUI
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             manager.cancelAlgorithm();
+        }
+
+        List<SolidColorBrush> GenerateEvenlySpacedColorTable(int colorCount)
+        {
+            List<SolidColorBrush> colorTable = new List<SolidColorBrush>();
+            double saturation = 0.7; // Fixed saturation for vivid colors
+            double lightness = 0.5;  // Fixed lightness for balanced brightness
+
+            for (int i = 0; i < colorCount; i++)
+            {
+                double hue = (i * 360.0 / colorCount) % 360; // Evenly spaced hues
+                colorTable.Add(new SolidColorBrush(HslToRgb(hue, saturation, lightness)));
+            }
+
+            return colorTable;
+        }
+
+        // Helper function to convert HSL to RGB
+        Color HslToRgb(double hue, double saturation, double lightness)
+        {
+            double c = (1 - Math.Abs(2 * lightness - 1)) * saturation;
+            double x = c * (1 - Math.Abs((hue / 60.0) % 2 - 1));
+            double m = lightness - c / 2;
+            double r = 0, g = 0, b = 0;
+
+            if (0 <= hue && hue < 60) { r = c; g = x; b = 0; }
+            else if (60 <= hue && hue < 120) { r = x; g = c; b = 0; }
+            else if (120 <= hue && hue < 180) { r = 0; g = c; b = x; }
+            else if (180 <= hue && hue < 240) { r = 0; g = x; b = c; }
+            else if (240 <= hue && hue < 300) { r = x; g = 0; b = c; }
+            else if (300 <= hue && hue < 360) { r = c; g = 0; b = x; }
+
+            byte red = (byte)((r + m) * 255);
+            byte green = (byte)((g + m) * 255);
+            byte blue = (byte)((b + m) * 255);
+
+            return Color.FromRgb(red, green, blue);
         }
     }
 }
