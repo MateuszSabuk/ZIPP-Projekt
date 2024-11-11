@@ -131,6 +131,7 @@
     <ClInclude Include="Bruteforce.h" />
     <ClInclude Include="Cmax.h" />
     <ClInclude Include="Manager.h" />
+    <ClInclude Include="NEH.h" />
     <ClInclude Include="SimulatedAnnealing.h" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +139,7 @@
     <ClCompile Include="Bruteforce.cpp" />
     <ClCompile Include="Cmax.cpp" />
     <ClCompile Include="Manager.cpp" />
+    <ClCompile Include="NEH.cpp" />
     <ClCompile Include="SimulatedAnnealing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
