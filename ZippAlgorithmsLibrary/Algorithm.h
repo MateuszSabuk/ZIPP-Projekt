@@ -4,7 +4,6 @@
 #include <string>
 #include <stdexcept> // Used for error propagation
 #include <unordered_map> // Used to store the parameters
-#include "Cmax.h"
 
 class Algorithm
 {
@@ -33,4 +32,13 @@ protected:
 
     // Overrideable function called by run() after setting cancel flag low
     virtual std::vector<std::vector<std::pair<int, int>>> start(std::vector<int> machines, std::vector<std::vector<int>> taskTimes) = 0;
+
+    // Sets cmax to the time of execution of the schedule
+    // Returns a 2D vector of size n*s of std::pair<int,int>
+    // where:
+    // n = number of tasks
+    // s = number of stages
+    // pair.first = machine index
+    // pair.second = task execution start time
+    std::vector<std::vector<std::pair<int, int>>> create_schedule(int& cmax, const std::vector<int>& machines, const std::vector<std::vector<int>>& task_times, const std::vector<int>& order);
 };
