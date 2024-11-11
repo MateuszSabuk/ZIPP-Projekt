@@ -1,34 +1,28 @@
 #include "Cmax.h"
 
 std::vector<std::vector<std::pair<int, int>>> create_schedule(int& cmax, const std::vector<int>& machines, const std::vector<std::vector<int>>& task_times, const std::vector<int>& order) {
-    std::vector<std::vector<std::pair<int, int>>> schedule;
-    std::vector<std::vector<int>> free_times; //vector with times at which given machine in job is free
-    std::vector<int> prev_step_end_times; //vector holding times at which tasks ended previous step
+    int num_of_stages = machines.size();
+    int num_of_tasks = task_times.size();
 
-    //create schedule and vector for previous steps filled with zeros
-    for (size_t task = 0; task < task_times.size(); task++) {
-        schedule.push_back(std::vector<std::pair<int, int>>());
-        prev_step_end_times.push_back(0);
-        for (size_t step = 0; step < task_times[0].size(); step++) {
-            schedule[task].push_back(std::make_pair(0, 0));
-        }
-    }
+    auto schedule = std::vector<std::vector<std::pair<int, int>>>(num_of_tasks, std::vector<std::pair<int, int>>(num_of_stages, std::make_pair(0, 0)));
+    auto free_times = std::vector<std::vector<int>>(num_of_stages); //vector with times at which given machine in job is free
+    auto prev_step_end_times = std::vector<int>(num_of_tasks, 0); //vector holding times at which tasks ended in previous step
 
-    //create zeros vector for machines end times
-    for (size_t step = 0; step < task_times[0].size(); step++) {
-        free_times.push_back(std::vector<int>());
-        for (int machine = 0; machine < machines[step]; machine++)
-            free_times[step].push_back(0);
+    // Fill free_times vector with zeroes
+    for (size_t step = 0; step < num_of_stages; step++) {
+        free_times[step].resize(machines[step], 0);
     }
 
     //iterate by task order to fit schedule "to the left"
     for (int task : order) {
-
         //iterate steps of a given task
         for (size_t step = 0; step < task_times[task].size(); step++) {
             //find first empty machine iterator and determine its index
             std::vector<int>::iterator first_free_machine = std::min_element(free_times[step].begin(), free_times[step].end());
             int free_machine_no = std::distance(free_times[step].begin(), first_free_machine);
+
+            //make sure the new task won't start before the previous one
+            //if (step > 0) prev_step_end_times[task] = std::max(prev_step_end_times[task], prev_step_end_times[task - 1]);
 
             //mark in schedule that this machine will be used and calculate start time for the step
             schedule[task][step].first = free_machine_no;

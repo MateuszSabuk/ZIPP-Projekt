@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept> // Used for error propagation
 #include <unordered_map> // Used to store the parameters
+#include "Cmax.h"
 
 class Algorithm
 {
