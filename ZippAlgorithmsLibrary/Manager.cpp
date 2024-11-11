@@ -5,6 +5,7 @@ Manager::Manager()
 	//// TODO Add all algorithms
 	algorithms.push_back(std::make_unique<Bruteforce>());
 	algorithms.push_back(std::make_unique<SimulatedAnnealing>());
+	algorithms.push_back(std::make_unique<NEH>());
 }
 
 std::pair<std::vector<int>, std::vector<std::vector<int>>> Manager::generate(int numOfStages, int numOfTasks, int maxNumOfMachinesInStage, int maxTaskTime)
