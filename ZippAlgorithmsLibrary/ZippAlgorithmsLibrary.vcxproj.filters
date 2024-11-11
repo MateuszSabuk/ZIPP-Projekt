@@ -27,9 +27,6 @@
     <ClInclude Include="SimulatedAnnealing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cmax.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="NEH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,9 +42,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimulatedAnnealing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cmax.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NEH.cpp">

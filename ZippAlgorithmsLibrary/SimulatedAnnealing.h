@@ -1,6 +1,5 @@
 #pragma once
 #include "Algorithm.h"
-#include "Cmax.h"
 #include <cmath>
 #include <random>
 #include <numeric>
