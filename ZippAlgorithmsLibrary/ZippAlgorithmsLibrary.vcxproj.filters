@@ -24,6 +24,12 @@
     <ClInclude Include="Bruteforce.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimulatedAnnealing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cmax.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Algorithm.cpp">
@@ -33,6 +39,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Bruteforce.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulatedAnnealing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cmax.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,6 +7,7 @@
 #include "Algorithm.h"
 // Used algorithms BEGIN
 #include "Bruteforce.h"
+#include "SimulatedAnnealing.h"
 // Used algorithms END
 
 class Manager
