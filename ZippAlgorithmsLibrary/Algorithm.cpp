@@ -30,7 +30,7 @@ void Algorithm::cancel()
     isCanceled = true;
 }
 
-std::vector<std::vector<std::pair<int, int>>> Algorithm::run(std::vector<int> machines, std::vector<std::vector<int>> taskTimes) {
+std::vector<std::vector<std::pair<int, int>>> Algorithm::run(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) {
     isCanceled = false;
     return start(machines, taskTimes);
 }

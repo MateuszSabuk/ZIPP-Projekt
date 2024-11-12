@@ -9,7 +9,7 @@ class SimulatedAnnealing : public Algorithm
 {
 public:
     SimulatedAnnealing();
-    std::vector<std::vector<std::pair<int, int>>> start(std::vector<int> machines, std::vector<std::vector<int>> taskTimes) override;
+    std::vector<std::vector<std::pair<int, int>>> start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) override;
 
 private:
     std::vector<std::vector<int>> get_neighbours(const std::vector<int>& base_order) const;

@@ -18,7 +18,7 @@ std::vector<int> NEH::sort_by_weight(const std::vector<std::vector<int>>& taskTi
 	return order;
 }
 
-std::vector<std::vector<std::pair<int, int>>> NEH::start(std::vector<int> machines, std::vector<std::vector<int>> taskTimes) {
+std::vector<std::vector<std::pair<int, int>>> NEH::start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) {
 	std::vector<int> sorted_task_order = sort_by_weight(taskTimes);
 	std::vector<int> best_order;
 	std::vector<int> current_order;

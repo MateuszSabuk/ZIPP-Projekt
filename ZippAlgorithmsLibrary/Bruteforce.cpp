@@ -8,7 +8,7 @@ Bruteforce::Bruteforce() : Algorithm("Bruteforce")
 	parameters.insert({ "Thread number" , 1 });
 }
 
-std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int> machines, std::vector<std::vector<int>> taskTimes)
+std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
 {
 	auto schedule = std::vector<std::vector<std::pair<int, int>>>(size(taskTimes), std::vector<std::pair<int, int>>(size(machines)));
 
