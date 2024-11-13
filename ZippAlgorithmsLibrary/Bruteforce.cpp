@@ -8,38 +8,25 @@ Bruteforce::Bruteforce() : Algorithm("Bruteforce")
 	parameters.insert({ "Thread number" , 1 });
 }
 
-std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int> machines, std::vector<std::vector<int>> taskTimes)
+std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
 {
 	auto schedule = std::vector<std::vector<std::pair<int, int>>>(size(taskTimes), std::vector<std::pair<int, int>>(size(machines)));
 
 	int minTime = INT_MAX;
+	int time;
 	std::vector<int> minPermutationNumbers;
 	
 	for (auto permutationNumbers : quickPerm(size(taskTimes)))
 	{
-		std::vector<std::vector<int>> permutation;
-		for (int index : permutationNumbers)
-		{
-			if (isCanceled) throw "canceled";
-			permutation.push_back(taskTimes[index]);
-		}
-		auto permutationSchedule = getSchedule(machines, permutation);
-		int time = getWorkTime(permutationSchedule, permutation);
+		auto permutationSchedule = create_schedule(time, machines, taskTimes, permutationNumbers);
 		if (time < minTime)
 		{
 			schedule = permutationSchedule;
 			minTime = time;
-			minPermutationNumbers = permutationNumbers;
 		}
 	}
 
-	auto output = std::vector<std::vector<std::pair<int, int>>>(size(taskTimes), std::vector<std::pair<int, int>>(size(machines)));
-	for (int i = 0; i < size(taskTimes); i++)
-	{
-		output[minPermutationNumbers[i]] = schedule[i];
-	}
-
-	return output;
+	return schedule;
 }
 
 std::vector<std::vector<int>> Bruteforce::quickPerm(int length)
@@ -72,62 +59,4 @@ std::vector<std::vector<int>> Bruteforce::quickPerm(int length)
 		}
 	}
 	return out;
-}
-
-int Bruteforce::getWorkTime(const std::vector<std::vector<std::pair<int, int>>> &schedule, const std::vector<std::vector<int>> &taskTimes)
-{
-	int maxTime = 0;
-	for (int i = 0; i < size(taskTimes); i++)
-	{
-		int endTime = schedule[i].back().second + taskTimes[i].back();
-		if (maxTime < endTime) maxTime = endTime;
-	}
-	return maxTime;
-}
-
-std::vector<std::vector<std::pair<int, int>>> Bruteforce::getSchedule(std::vector<int> machines, std::vector<std::vector<int>> taskTimes)
-{
-	int numOfStages = size(machines);
-	int numOfTasks = size(taskTimes);
-
-	auto schedule = std::vector<std::vector<std::pair<int, int>>>(numOfTasks, std::vector<std::pair<int, int>>(numOfStages));
-
-	auto machineEndTimes = std::vector<std::vector<int>>(numOfStages);
-
-	for (int stage = 0; stage < numOfStages; ++stage) {
-		machineEndTimes[stage].resize(machines[stage], 0);
-	}
-
-	auto taskReadyTimes = std::vector<int>(numOfTasks, 0);
-	for (int stageIndex = 0; stageIndex < numOfStages; stageIndex++)
-	{
-		for (int taskIndex = 0; taskIndex < numOfTasks; taskIndex++)
-		{
-			if (isCanceled) throw "canceled";
-			// Get first ready machine
-			auto readyMachine = min_element(begin(machineEndTimes[stageIndex]), end(machineEndTimes[stageIndex]));
-			int machineIndex = distance(begin(machineEndTimes[stageIndex]), readyMachine);
-			int taskStartTime;
-			// If task is ready for the machine
-			if (taskReadyTimes[taskIndex] <= *readyMachine)
-			{
-				if (taskIndex > 0 && schedule[taskIndex - 1][stageIndex].second > *readyMachine)
-					*readyMachine = schedule[taskIndex - 1][stageIndex].second;
-				taskStartTime = *readyMachine;
-				*readyMachine += taskTimes[taskIndex][stageIndex];
-				taskReadyTimes[taskIndex] = *readyMachine;
-			}
-			else // If machine is waiting for the task
-			{
-				if (taskIndex > 0 && schedule[taskIndex - 1][stageIndex].second > taskReadyTimes[taskIndex])
-					taskReadyTimes[taskIndex] = schedule[taskIndex - 1][stageIndex].second;
-				taskStartTime = taskReadyTimes[taskIndex];
-				taskReadyTimes[taskIndex] += taskTimes[taskIndex][stageIndex];
-				*readyMachine = taskReadyTimes[taskIndex];
-			}
-			// Populate schedule
-			schedule[taskIndex][stageIndex] = {machineIndex, taskStartTime};
-		}
-	}
-	return schedule;
 }

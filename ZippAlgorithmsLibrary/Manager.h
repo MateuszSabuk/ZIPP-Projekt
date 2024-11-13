@@ -7,6 +7,8 @@
 #include "Algorithm.h"
 // Used algorithms BEGIN
 #include "Bruteforce.h"
+#include "SimulatedAnnealing.h"
+#include "NEH.h"
 // Used algorithms END
 
 class Manager
@@ -23,10 +25,10 @@ public:
 	// Get parameters of the chosen algorithm
 	std::unordered_map<std::string, int> getAlgorithmParams(int algId);
 	// Set the parameters of the chosen algorithm
-	void setAlgorithmParams(int algId, std::unordered_map<std::string, int> params);
+	void setAlgorithmParams(int algId, const std::unordered_map<std::string, int> &params);
 
 	// Run the chosen algorithm solve
-	std::vector<std::vector<std::pair<int, int>>> run(int algId, std::vector<int> machines, std::vector<std::vector<int>> taskTimes);
+	std::vector<std::vector<std::pair<int, int>>> run(int algId, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes);
 	// Cancel the solve of the running algorithm
 	void cancelAlgorithm();
 
