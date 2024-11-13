@@ -1,5 +1,4 @@
 #include "Bruteforce.h"
-#include "Windows.h"
 
 // Set the name of the algorithm
 Bruteforce::Bruteforce() : Algorithm("Bruteforce")
@@ -10,23 +9,63 @@ Bruteforce::Bruteforce() : Algorithm("Bruteforce")
 
 std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
 {
-	auto schedule = std::vector<std::vector<std::pair<int, int>>>(size(taskTimes), std::vector<std::pair<int, int>>(size(machines)));
+    int maxThreads = std::thread::hardware_concurrency();
+    int requestedThreads = parameters["Thread number"];
+    int threadCount = std::min(requestedThreads, maxThreads > 0 ? maxThreads : 1);
 
-	int minTime = INT_MAX;
-	int time;
-	std::vector<int> minPermutationNumbers;
-	
-	for (auto permutationNumbers : quickPerm(size(taskTimes)))
-	{
-		auto permutationSchedule = create_schedule(time, machines, taskTimes, permutationNumbers);
-		if (time < minTime)
-		{
-			schedule = permutationSchedule;
-			minTime = time;
-		}
-	}
+    auto schedule = std::vector<std::vector<std::pair<int, int>>>(taskTimes.size(), std::vector<std::pair<int, int>>(machines.size()));
 
-	return schedule;
+    int minTime = std::numeric_limits<int>::max();
+    std::mutex mtx;
+
+    auto allPermutations = quickPerm(taskTimes.size());
+
+    int permutationCount = allPermutations.size();
+    int chunkSize = permutationCount / threadCount;
+    int remainder = permutationCount % threadCount;
+
+    auto worker = [&](int startIndex, int endIndex)
+    {
+        int localMinTime = std::numeric_limits<int>::max();
+        std::vector<std::vector<std::pair<int, int>>> localSchedule;
+
+        for (int i = startIndex; i < endIndex; i++) {
+            int time;
+            auto permutationSchedule = create_schedule(time, machines, taskTimes, allPermutations[i]);
+
+            // Update local minimum time and schedule
+            if (time < localMinTime) {
+                localMinTime = time;
+                localSchedule = permutationSchedule;
+            }
+        }
+
+        // Lock to update global minTime and schedule
+        std::lock_guard<std::mutex> lock(mtx);
+        if (localMinTime < minTime) {
+            minTime = localMinTime;
+            schedule = localSchedule;
+        }
+
+    };
+
+    std::vector<std::thread> threads;
+    
+    int startIdx = 0;
+    for (int i = 0; i < threadCount; ++i) {
+        int endIdx = startIdx + chunkSize + (i < remainder ? 1 : 0);
+        threads.emplace_back(worker, startIdx, endIdx);
+        startIdx = endIdx;
+    }
+
+    // Wait for all futures to complete
+    for (auto& t : threads) {
+        if (t.joinable()) {
+            t.join();
+        }
+    }
+
+    return schedule;
 }
 
 std::vector<std::vector<int>> Bruteforce::quickPerm(int length)
