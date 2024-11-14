@@ -79,7 +79,6 @@ std::vector<std::vector<int>> Bruteforce::quickPerm(int length)
         if (isCanceled) throw "canceled";
 		a[i] = p[i] = i;
     }
-    out.push_back(a);
 
     int i = 0;
     while (i < length)
@@ -90,7 +89,7 @@ std::vector<std::vector<int>> Bruteforce::quickPerm(int length)
         std::swap(a[i], a[j]);
         out.push_back(a);
         i = 1;
-		while (!p[i])
+        while (i < length && p[i] == 0)
         {
             p[i] = i;
             i++;
