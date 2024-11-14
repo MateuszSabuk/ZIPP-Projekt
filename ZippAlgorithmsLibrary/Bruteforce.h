@@ -1,6 +1,9 @@
 #pragma once
 #include "Algorithm.h"
-#include <deque>
+#include <thread>
+#include <mutex>
+#include <iostream>
+#include <chrono>
 
 class Bruteforce : public Algorithm
 {
