@@ -210,7 +210,7 @@ namespace ZippGUI
             str.AppendLine("Tasks:");
             for (int i = 0; i < taskTimes.GetLength(0); i++)
             {
-                str.Append("[");
+                str.Append("T"+i+" [");
                 for (int j = 0; j < taskTimes.GetLength(1) - 1; j++)
                 {
                     str.Append(taskTimes[i, j].ToString() + ", ");
@@ -232,6 +232,7 @@ namespace ZippGUI
             // Loop through the array to format each tuple
             for (int i = 0; i < rows; i++)
             {
+                sb.Append("T" + i + " [");
                 for (int j = 0; j < cols; j++)
                 {
                     var tuple = tuples[i, j];
@@ -243,6 +244,7 @@ namespace ZippGUI
                         sb.Append("  ");
                     }
                 }
+                sb.Append("]");
                 // Add a new line after each row
                 sb.AppendLine();
             }
