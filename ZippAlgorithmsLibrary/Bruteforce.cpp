@@ -30,6 +30,7 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
         std::vector<std::vector<std::pair<int, int>>> localSchedule;
 
         for (int i = startIndex; i < endIndex; i++) {
+            if (isCanceled) return;
             int time;
             auto permutationSchedule = create_schedule(time, machines, taskTimes, allPermutations[i]);
 
@@ -64,6 +65,7 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
             t.join();
         }
     }
+    if (isCanceled) throw "canceled";
 
     return schedule;
 }
