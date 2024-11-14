@@ -4,7 +4,7 @@
 Bruteforce::Bruteforce() : Algorithm("Bruteforce")
 {
 	// A parameter example
-	parameters.insert({ "Thread number" , 1 });
+	parameters.insert({ "Thread number" , std::thread::hardware_concurrency() });
 }
 
 std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
