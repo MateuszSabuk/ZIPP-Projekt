@@ -8,173 +8,202 @@
         Title="MainWindow" Height="961" Width="1306"
         Background="#F0F0F0" SizeToContent="Height" Closing="Window_Closing">
     <Grid Margin="20">
-        <StackPanel Orientation="Horizontal">
-            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
-
-                <!-- Group 1: Number Inputs and Generate Button -->
-                <GroupBox Header="Input Parameters" Margin="0,0,0,20" Padding="10">
-                    <StackPanel>
-
-                        <!-- Label and Input for numOfStages -->
-                        <StackPanel Margin="0,10,0,0">
-                            <Label Content="Number of Stages" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <TextBox x:Name="numOfStages" Height="30" 
-                                 Background="#FFFFFF" 
-                                 BorderBrush="#C0C0C0" 
-                                 BorderThickness="1"
-                                 Padding="5"
-                                 PreviewTextInput="NumberValidationTextBox" />
-                        </StackPanel>
-
-                        <!-- Label and Input for numOfTasks -->
-                        <StackPanel Margin="0,10,0,0">
-                            <Label Content="Number of Tasks" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <TextBox x:Name="numOfTasks" Height="30" 
-                                 Background="#FFFFFF" 
-                                 BorderBrush="#C0C0C0" 
-                                 BorderThickness="1"
-                                 Padding="5"
-                                 PreviewTextInput="NumberValidationTextBox" />
-                        </StackPanel>
-
-                        <!-- Label and Input for maxNumOfMachinesInStage -->
-                        <StackPanel Margin="0,10,0,0">
-                            <Label Content="Max Number of Machines in Stage" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <TextBox x:Name="maxNumOfMachinesInStage" Height="30" 
-                                 Background="#FFFFFF" 
-                                 BorderBrush="#C0C0C0" 
-                                 BorderThickness="1"
-                                 Padding="5"
-                                 PreviewTextInput="NumberValidationTextBox" />
-                        </StackPanel>
-
-                        <!-- Label and Input for maxTaskTime -->
-                        <StackPanel Margin="0,10,0,0">
-                            <Label Content="Max Task Time" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <TextBox x:Name="maxTaskTime" Height="30" 
-                                 Background="#FFFFFF" 
-                                 BorderBrush="#C0C0C0" 
-                                 BorderThickness="1"
-                                 Padding="5"
-                                 PreviewTextInput="NumberValidationTextBox" />
-                        </StackPanel>
-
-                        <!-- Generate Button -->
-                        <Button Content="Generate" 
-                            HorizontalAlignment="Left" 
-                            Height="56" 
-                            Width="122" 
-                            Margin="0,20,0,10" 
-                            Background="#4CAF50" 
-                            Foreground="White" 
-                            FontWeight="Bold" 
-                            Click="GenerateButtonClick"/>
-                    </StackPanel>
-                </GroupBox>
-
-                <!-- Group 2: Algorithm Selection, Params, and Set Params Button -->
-                <GroupBox Header="Algorithm Settings" Margin="0,0,0,20" Padding="10">
-                    <StackPanel>
-
-                        <!-- ComboBox for Selection -->
-                        <StackPanel Margin="0,10,0,0">
-                            <Label Content="Choose Algorithm" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <ComboBox x:Name="AlgorithmChoice" Width="120" Height="30" 
-                                  Loaded="AlgorithmChoice_Loaded"
-                                  Padding="5" 
-                                  Margin="0,0,0,0" SelectionChanged="AlgorithmChoice_SelectionChanged">
-                                <ComboBox.Resources>
-                                    <Style TargetType="ComboBox">
-                                        <Setter Property="Margin" Value="0"/>
-                                        <Setter Property="Padding" Value="5"/>
-                                        <Setter Property="Background" Value="#FFFFFF"/>
-                                        <Setter Property="BorderBrush" Value="#C0C0C0"/>
-                                        <Setter Property="BorderThickness" Value="1"/>
-                                    </Style>
-                                </ComboBox.Resources>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <!-- Scrollable area for additional inputs -->
-                        <StackPanel Margin="0,20,0,0">
-                            <Label Content="Algorithm Parameters" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <ScrollViewer Height="200" VerticalScrollBarVisibility="Auto">
-                                <StackPanel x:Name="AlgorithmParamsPanel" />
-                            </ScrollViewer>
-                        </StackPanel>
-
-                        <!-- Set Params Button -->
-                        <Button Content="Set params" 
-                            HorizontalAlignment="Left" 
-                            Height="56" 
-                            Width="122" 
-                            Margin="0,20,0,10" 
-                            Background="#4CAF50" 
-                            Foreground="White" 
-                            FontWeight="Bold" 
-                            Click="SetParametersButtonClick"/>
-
-                    </StackPanel>
-                </GroupBox>
-
-            </StackPanel>
-
-            <!-- Group 3: Run Button and Output -->
-            <GroupBox Header="Input Parameters" Margin="10,0,0,20" Padding="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width = "Auto"/>
+            <ColumnDefinition Width = "1*"/>
+            <ColumnDefinition Width = "2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <!-- Group 1: Number Inputs and Generate Button -->
+        <GroupBox Grid.Column="0" Grid.Row="0" Header="Input Parameters" Margin="0,0,0,20" Padding="10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" >
                 <Grid>
-                    <!-- TextBlock to display generated text -->
-                    <TextBlock x:Name="GeneratedText" 
-                       HorizontalAlignment="Left" 
-                       Margin="0,10,0,10"
-                       Height="auto"
-                       Width="200"
-                       TextWrapping="Wrap" 
-                       FontWeight="Bold" 
-                       FontSize="14"
-                       Foreground="#333333"
-                   />
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
+                    <!-- Label and Input for numOfStages -->
+                    <StackPanel Margin="0,10,0,0">
+                        <Label Content="Number of Stages" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="numOfStages" Height="30" 
+                        Background="#FFFFFF" 
+                        BorderBrush="#C0C0C0" 
+                        BorderThickness="1"
+                        Padding="5"
+                        PreviewTextInput="NumberValidationTextBox" />
+                    </StackPanel>
 
+                    <!-- Label and Input for numOfTasks -->
+                    <StackPanel Margin="0,10,0,0">
+                        <Label Content="Number of Tasks" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="numOfTasks" Height="30" 
+                                Background="#FFFFFF" 
+                                BorderBrush="#C0C0C0" 
+                                BorderThickness="1"
+                                Padding="5"
+                                PreviewTextInput="NumberValidationTextBox" />
+                    </StackPanel>
+
+                    <!-- Label and Input for maxNumOfMachinesInStage -->
+                    <StackPanel Margin="0,10,0,0">
+                        <Label Content="Max Number of Machines in Stage" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="maxNumOfMachinesInStage" Height="30" 
+                                Background="#FFFFFF" 
+                                BorderBrush="#C0C0C0" 
+                                BorderThickness="1"
+                                Padding="5"
+                                PreviewTextInput="NumberValidationTextBox" />
+                    </StackPanel>
+
+                    <!-- Label and Input for maxTaskTime -->
+                    <StackPanel Margin="0,10,0,0">
+                        <Label Content="Max Task Time" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="maxTaskTime" Height="30" 
+                                Background="#FFFFFF" 
+                                BorderBrush="#C0C0C0" 
+                                BorderThickness="1"
+                                Padding="5"
+                                PreviewTextInput="NumberValidationTextBox" />
+                    </StackPanel>
+                </StackPanel>
+                <!-- Generate Button -->
+                <Button Content="Generate"
+                        Grid.Row="1"
+                        HorizontalAlignment="Center" 
+                        Margin="0,20,0,0"
+                        Height="56"
+                        Width="122" 
+                        Background="#4CAF50" 
+                        Foreground="White" 
+                        FontWeight="Bold" 
+                        Click="GenerateButtonClick"/>
+            </Grid>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- Group 2: Algorithm Selection, Params, and Set Params Button -->
+        <GroupBox Header="Algorithm Settings" Grid.Row="1" Grid.Column="0" Margin="0,0,0,20" Padding="10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- ComboBox for Selection -->
+                    <Label Grid.Row="0" Content="Choose Algorithm" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox Grid.Row="1" x:Name="AlgorithmChoice" Width="120" Height="30" 
+                        Loaded="AlgorithmChoice_Loaded"
+                        Padding="5" 
+                        Margin="0,0,0,0" SelectionChanged="AlgorithmChoice_SelectionChanged">
+                        <ComboBox.Resources>
+                            <Style TargetType="ComboBox">
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Padding" Value="5"/>
+                                <Setter Property="Background" Value="#FFFFFF"/>
+                                <Setter Property="BorderBrush" Value="#C0C0C0"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                            </Style>
+                        </ComboBox.Resources>
+                    </ComboBox>
+
+                    <!-- Scrollable area for additional inputs -->
+
+                    <Label Content="Algorithm Parameters" FontWeight="Bold" Margin="0,0,0,5" Grid.Row="2"/>
+
+                    <StackPanel x:Name="AlgorithmParamsPanel" Height="Auto" Grid.Row="3"/>
+
+
+                    <!-- Set Params Button -->
+                    <Button Grid.Row="4"
+                        Content="Set params" 
+                        HorizontalAlignment="Center" 
+                        Height="56" 
+                        Width="122" 
+                        Margin="0,20,0,0" 
+                        Background="#4CAF50" 
+                        Foreground="White" 
+                        FontWeight="Bold" 
+                        Click="SetParametersButtonClick"/>
+
+                </Grid>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- Group 3: Run Button and Output -->
+        <GroupBox Grid.Column="1" Grid.RowSpan="2" Header="Input Parameters" Margin="10,0,0,20" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <!-- TextBlock to display generated text -->
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <TextBlock x:Name="GeneratedText" 
+                        Margin="0,10,0,10"
+                        Width="Auto"
+                        TextWrapping="Wrap" 
+                        FontWeight="Bold" 
+                        FontSize="14"
+                        Foreground="#333333" />
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="1" Orientation="Vertical">
                     <!-- Run Button -->
                     <Button Content="Run" 
-                    Name="RunButton"
-                    Height="56"
-                    Width="122"
-                    Background="#2196F3" 
-                    Foreground="White" 
-                    FontWeight="Bold" 
-                    Click="Run_Button_Click" Margin="39,677,39,83"/>
+                            Name="RunButton"
+                            Height="56"
+                            Width="122"
+                            Background="#2196F3" 
+                            Foreground="White" 
+                            FontWeight="Bold"
+                            Margin="0,10,0,10"
+                            Click="Run_Button_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
                     <!-- Stop Button -->
                     <Button Content="Stop" 
-                    IsEnabled="False"
-                    Name="StopButton"
-                    VerticalAlignment="Bottom"
-                    Height="56" 
-                    Width="122" 
-                    Background="#ff2222" 
-                    Foreground="White" 
-                    FontWeight="Bold" 
-                    Click="StopButton_Click"/>
-                </Grid>
-            </GroupBox>
-            <GroupBox Header="Visualisation" Margin="10,0,0,20" Padding="10">
-                <ScrollViewer Width="400" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Name="VisualisationStackPanel">
-                        
-                    </StackPanel>
-                </ScrollViewer>
-            </GroupBox>
-            <!-- TextBlock to display generated text -->
-            <TextBlock
+                            IsEnabled="False"
+                            Name="StopButton"
+                            VerticalAlignment="Bottom"
+                            Height="56" 
+                            Width="122" 
+                            Background="#ff2222" 
+                            Foreground="White" 
+                            FontWeight="Bold" 
+                            Margin="0,10,0,0"
+                            Click="StopButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Header="Visualisation" Grid.Row="0" Grid.Column="2" Margin="10,0,0,20" Padding="10">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <StackPanel Name="VisualisationStackPanel">
+
+                </StackPanel>
+            </ScrollViewer>
+        </GroupBox>
+        <!-- TextBlock to display generated text -->
+        <GroupBox Header="Text Output" Grid.Row="1" Grid.Column="2" Margin="10,0,0,20" Padding="10">
+
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <TextBlock
                 x:Name="AnswerText" 
                 Margin="0,10,0,10"
                 Height="auto"
-                Width="743"
                 TextWrapping="Wrap" 
                 FontWeight="Bold" 
                 FontSize="14"
                 Foreground="#333333"
                 />
-        </StackPanel>
+            </ScrollViewer>
+        </GroupBox>
     </Grid>
 </Window>

@@ -151,7 +151,17 @@ namespace ZippGUI
                 return;
             }
             AnswerText.Text = answerTuple2string(result);
-            List<SolidColorBrush> colorTable = GenerateEvenlySpacedColorTable(taskTimes.Length);
+
+            for (int stageIndex = 0; stageIndex < result.GetLength(1); stageIndex++)
+            {
+                for (int i = 0; i < machines[stageIndex]; i++)
+                {
+                    object node = FindName("machineRow_stage" + stageIndex + "_machine" + i);
+                    (node as Canvas).Children.Clear();
+                }
+            }
+
+                List<SolidColorBrush> colorTable = GenerateEvenlySpacedColorTable(taskTimes.Length);
 
             for (int taskIndex = 0; taskIndex < result.GetLength(0); taskIndex++)
             {
@@ -166,10 +176,10 @@ namespace ZippGUI
                         {
                             Name = "machine" + result[taskIndex, stageIndex].Item1 + "_stage" + stageIndex,
                             Height = machineRow.Height,
-                            Width = taskTimes[taskIndex,stageIndex] * 5,
+                            Width = taskTimes[taskIndex,stageIndex] * 7,
                             Background = colorTable[taskIndex],
                         };
-                        Canvas.SetLeft(task, result[taskIndex, stageIndex].Item2 * 5);
+                        Canvas.SetLeft(task, result[taskIndex, stageIndex].Item2 * 7);
                         task.Children.Add(new TextBlock { Text = taskIndex.ToString() });
                         machineRow.Children.Add(task);
                     }
