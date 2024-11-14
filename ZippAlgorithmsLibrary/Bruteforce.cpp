@@ -70,32 +70,31 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
 
 std::vector<std::vector<int>> Bruteforce::quickPerm(int length)
 {
-	std::vector<std::vector<int>> out;
-	auto a = std::vector<int>(length);
-	auto p = std::vector<int>(length + 1);
+    std::vector<std::vector<int>> out;
+    auto a = std::vector<int>(length);
+    auto p = std::vector<int>(length + 1);
 
-	for (int i = 0; i < length; i++)
-	{
-		if (isCanceled) throw "canceled";
+    for (int i = 0; i < length; i++)
+    {
+        if (isCanceled) throw "canceled";
 		a[i] = p[i] = i;
-	}
-	p[length] = length;
-	out.push_back(a);
+    }
+    out.push_back(a);
 
-	int i = 0;
-	while (i < length)
-	{
-		if (isCanceled) throw "canceled";
-		--p[i];
+    int i = 0;
+    while (i < length)
+    {
+        if (isCanceled) throw "canceled";
+        --p[i];
 		int j = i % 2 * p[i];
-		std::swap(a[i], a[j]);
-		out.push_back(a);
-		i = 1;
+        std::swap(a[i], a[j]);
+        out.push_back(a);
+        i = 1;
 		while (!p[i])
-		{
-			p[i] = 1;
-			i++;
-		}
-	}
-	return out;
+        {
+            p[i] = i;
+            i++;
+        }
+    }
+    return out;
 }
