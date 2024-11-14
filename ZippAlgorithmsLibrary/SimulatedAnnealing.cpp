@@ -21,10 +21,11 @@ std::vector<std::vector<std::pair<int, int>>> SimulatedAnnealing::start(const st
 	std::vector<std::vector<std::pair<int, int>>> current_schedule;
 	
 	std::iota(current_order.begin(), current_order.end(), 0);
+	std::shuffle(current_order.begin(), current_order.end(), rand_gen);
 	int best_cmax;
 	std::vector<std::vector<std::pair<int, int>>> best_schedule = create_schedule(best_cmax, machines, taskTimes, current_order);
 	int current_cmax = best_cmax;
-	for (size_t iter = 0; iter < max_iter && current_temp > min_temp; iter++) {
+	for (size_t iter = 0; iter < max_iter /* && current_temp > min_temp */ ; iter++) {
 		if (isCanceled) throw "canceled";
 
 		std::vector<std::vector<int>> neighbourhood = get_neighbours(current_order);
