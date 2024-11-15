@@ -1,4 +1,6 @@
 #include "Bruteforce.h"
+#include <iostream>
+#include <numeric>
 
 // Set the name of the algorithm
 Bruteforce::Bruteforce() : Algorithm("Bruteforce")
@@ -18,21 +20,17 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
     int minTime = std::numeric_limits<int>::max();
     std::mutex mtx;
 
-    auto allPermutations = quickPerm(taskTimes.size());
-
-    int permutationCount = allPermutations.size();
-    int chunkSize = permutationCount / threadCount;
-    int remainder = permutationCount % threadCount;
-
-    auto worker = [&](int startIndex, int endIndex)
+    auto worker = [&](std::vector<int> permutation, int numOfPermutations)
     {
         int localMinTime = std::numeric_limits<int>::max();
         std::vector<std::vector<std::pair<int, int>>> localSchedule;
 
-        for (int i = startIndex; i < endIndex; i++) {
+        int i = 0;
+        do
+        {
             if (isCanceled) return;
             int time;
-            auto permutationSchedule = create_schedule(time, machines, taskTimes, allPermutations[i]);
+            auto permutationSchedule = create_schedule(time, machines, taskTimes, permutation);
 
             // Update local minimum time and schedule
             if (time < localMinTime) {
@@ -40,6 +38,7 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
                 localSchedule = permutationSchedule;
             }
         }
+        while (++i < numOfPermutations && std::next_permutation(permutation.begin(), permutation.end()));
 
         // Lock to update global minTime and schedule
         std::lock_guard<std::mutex> lock(mtx);
@@ -47,17 +46,32 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
             minTime = localMinTime;
             schedule = localSchedule;
         }
-
     };
 
     std::vector<std::thread> threads;
-    
-    int startIdx = 0;
-    for (int i = 0; i < threadCount; ++i) {
-        int endIdx = startIdx + chunkSize + (i < remainder ? 1 : 0);
-        threads.emplace_back(worker, startIdx, endIdx);
-        startIdx = endIdx;
+
+    std::vector<int> startPermutation(taskTimes.size());
+    std::iota(startPermutation.begin(), startPermutation.end(), 0);
+
+    size_t permutationCount = 1;
+    for (int i = 1; i <= startPermutation.size(); ++i) {
+        permutationCount *= i;
     }
+    int chunkSize = permutationCount / threadCount;
+    int remainder = permutationCount % threadCount;
+    
+    for (int i = 1; i < threadCount; i++) {
+        int length = chunkSize + (i <= remainder ? 1 : 0);
+
+        threads.emplace_back(worker, startPermutation, length);
+
+        for (int j = 0; j < length; j++) {
+            if (isCanceled) throw "canceled";
+            std::next_permutation(startPermutation.begin(), startPermutation.end());
+        }
+    }
+    threads.emplace_back(worker, startPermutation, chunkSize);
+
 
     // Wait for all futures to complete
     for (auto& t : threads) {
@@ -68,34 +82,4 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
     if (isCanceled) throw "canceled";
 
     return schedule;
-}
-
-std::vector<std::vector<int>> Bruteforce::quickPerm(int length)
-{
-    std::vector<std::vector<int>> out;
-    auto a = std::vector<int>(length);
-    auto p = std::vector<int>(length + 1);
-
-    for (int i = 0; i < length; i++)
-    {
-        if (isCanceled) throw "canceled";
-		a[i] = p[i] = i;
-    }
-
-    int i = 0;
-    while (i < length)
-    {
-        if (isCanceled) throw "canceled";
-        --p[i];
-		int j = i % 2 * p[i];
-        std::swap(a[i], a[j]);
-        out.push_back(a);
-        i = 1;
-        while (i < length && p[i] == 0)
-        {
-            p[i] = i;
-            i++;
-        }
-    }
-    return out;
 }
