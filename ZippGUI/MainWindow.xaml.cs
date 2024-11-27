@@ -108,6 +108,7 @@ namespace ZippGUI
             TasksDataGrid.ItemsSource = tasksTable.DefaultView;
             TasksDataGrid.Columns[0].IsReadOnly = true;
         }
+
         private void TasksDataGrid_AddingNewRow(object sender, DataGridRowEditEndingEventArgs e)
         {
             //// Check if it's a new row
@@ -130,9 +131,29 @@ namespace ZippGUI
                 if (FindName(name) is FrameworkElement)
                 UnregisterName(name);
             }
+            VisualisationStageStackPanel.Children.Clear();
             VisualisationStackPanel.Children.Clear();
+            VisualisationStackPanel.MinWidth = VisualisationStackPanel.ViewportWidth;
             for (int stageIndex = 0; stageIndex < machines.Length; stageIndex++)
             {
+                Grid stageGroup = new Grid
+                {
+                    Height = 17 * machines[stageIndex] -2,
+                    MinWidth = 40,
+                    Background = Brushes.Gray,
+                    Margin = new Thickness(0, 7, 0, 5)
+                };
+                stageGroup.Children.Add(new TextBlock {
+                    Text = (stageIndex + 1).ToString(),
+                    Margin = new Thickness(5,0,5,0),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.White
+                });
+
+                VisualisationStageStackPanel.Children.Add(stageGroup);
+
                 StackPanel stageRow = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(0, 5, 0, 5) };
 
                 for (int machineIndex = 0; machineIndex < machines[stageIndex]; machineIndex++)
@@ -180,6 +201,11 @@ namespace ZippGUI
                 {
                     RunButton.IsEnabled = false;
                     StopButton.IsEnabled = true;
+                    GenerateButton.IsEnabled = false;
+                    SetParamsButton.IsEnabled = false;
+                    MachinesDataGrid.IsEnabled = false;
+                    TasksDataGrid.IsEnabled = false;
+
                 });
                 Tuple<int, int>[,]? result = null;
                 try
@@ -197,11 +223,15 @@ namespace ZippGUI
                     visualizeSchedule(result);
                     RunButton.IsEnabled = true;
                     StopButton.IsEnabled = false;
+                    GenerateButton.IsEnabled = true;
+                    SetParamsButton.IsEnabled = true;
+                    MachinesDataGrid.IsEnabled = true;
+                    TasksDataGrid.IsEnabled = true;
                 });
             }));
             runThread.Start();
         }
-
+        
         private void visualizeSchedule(Tuple<int, int>[,]? result)
         {
             if (result == null)
@@ -220,8 +250,10 @@ namespace ZippGUI
                 }
             }
 
-                List<SolidColorBrush> colorTable = GenerateEvenlySpacedColorTable(taskTimes.Length);
+            List<SolidColorBrush> colorTable = GenerateEvenlySpacedColorTable(taskTimes.GetLength(0));
 
+            int visualisationScale = 7;
+            int cmax = 0;
             for (int taskIndex = 0; taskIndex < result.GetLength(0); taskIndex++)
             {
                 for (int stageIndex = 0; stageIndex < result.GetLength(1); stageIndex++)
@@ -230,20 +262,23 @@ namespace ZippGUI
                     if (node is Canvas)
                     {
                         Canvas machineRow = node as Canvas;
-
+                        int taskTime = taskTimes[taskIndex, stageIndex];
+                        int leftPosition = result[taskIndex, stageIndex].Item2;
+                        cmax = leftPosition + taskTime < cmax ? cmax : leftPosition + taskTime;
                         Canvas task = new Canvas
                         {
                             Name = "machine" + result[taskIndex, stageIndex].Item1 + "_stage" + stageIndex,
                             Height = machineRow.Height,
-                            Width = taskTimes[taskIndex,stageIndex] * 7,
+                            Width = taskTime * visualisationScale,
                             Background = colorTable[taskIndex],
                         };
-                        Canvas.SetLeft(task, result[taskIndex, stageIndex].Item2 * 7);
+                        Canvas.SetLeft(task, leftPosition * visualisationScale);
                         task.Children.Add(new TextBlock { Text = taskIndex.ToString() });
                         machineRow.Children.Add(task);
                     }
                 }
             }
+            VisualisationStackPanel.MinWidth = cmax * visualisationScale > VisualisationStackPanel.ViewportWidth ? cmax * visualisationScale : VisualisationStackPanel.ViewportWidth;
         }
 
         public static string answerTuple2string(Tuple<int, int>[,]? tuples)
@@ -386,6 +421,30 @@ namespace ZippGUI
             byte blue = (byte)((b + m) * 255);
 
             return Color.FromRgb(red, green, blue);
+        }
+
+        private void TasksDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            populateVisualisation();
+        }
+
+        private void VisualisationScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (sender == VisualisationStackPanelScrollViewer)
+                VisualisationStackPanelStageScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+            else
+                VisualisationStackPanelScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+        }
+
+        private void VisualisationStackPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (VisualisationStackPanelScrollViewer.ComputedHorizontalScrollBarVisibility == Visibility.Visible)
+            {
+                VisualisationStackPanelStageScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+            } else
+            {
+                VisualisationStackPanelStageScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            }
         }
     }
 }

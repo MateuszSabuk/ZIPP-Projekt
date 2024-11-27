@@ -72,6 +72,7 @@
                 </StackPanel>
                 <!-- Generate Button -->
                 <Button Content="Generate"
+                        Name="GenerateButton"
                         Grid.Row="1"
                         HorizontalAlignment="Center" 
                         Margin="0,20,0,0"
@@ -123,6 +124,7 @@
 
                     <!-- Set Params Button -->
                     <Button Grid.Row="4"
+                        Name="SetParamsButton"
                         Content="Set params" 
                         HorizontalAlignment="Center" 
                         Height="56" 
@@ -141,29 +143,28 @@
         <GroupBox Grid.Column="1" Grid.RowSpan="2" Header="Instance control" Margin="10,0,0,20" Padding="10">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <!-- TextBlock to display generated text -->
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="50"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <!-- Label and Input for MachinesTextBox -->
-                        <Label Content="Numbers of machines" FontWeight="Bold" Grid.Row="0" Margin="0,0,0,5"/>
-                        <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition MinHeight="50"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <!-- Label and Input for MachinesTextBox -->
+                    <Label Content="Numbers of machines" FontWeight="Bold" Grid.Row="0" Margin="0,0,0,5"/>
+                    <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" />
 
-                        <!-- Label and Input for TasksTextBox -->
-                        <Label Content="Number of Tasks" FontWeight="Bold" Grid.Row="2" Margin="0,0,0,5"/>
-                        <DataGrid x:Name="TasksDataGrid" Grid.Row="3" RowEditEnding="TasksDataGrid_AddingNewRow"/>
-                    </Grid>
-                </ScrollViewer>
+                    <!-- Label and Input for TasksTextBox -->
+                    <Label Content="Number of Tasks" FontWeight="Bold" Grid.Row="2" Margin="0,0,0,5"/>
+                </Grid>
+                <DataGrid x:Name="TasksDataGrid" Grid.Row="1" RowEditEnding="TasksDataGrid_AddingNewRow" PreviewTextInput="NumberValidationTextBox" CellEditEnding="TasksDataGrid_CellEditEnding"/>
 
-                <StackPanel Grid.Row="1" Orientation="Vertical">
+
+                <StackPanel Grid.Row="2" Orientation="Vertical">
                     <!-- Run Button -->
                     <Button Content="Run" 
                             Name="RunButton"
@@ -192,11 +193,18 @@
         </GroupBox>
 
         <GroupBox Header="Visualisation" Grid.Row="0" Grid.Column="2" Margin="10,0,0,20" Padding="10">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <StackPanel Name="VisualisationStackPanel">
-
-                </StackPanel>
-            </ScrollViewer>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <ScrollViewer Name="VisualisationStackPanelStageScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden" Grid.Column="0" ScrollChanged="VisualisationScrollChanged">
+                    <StackPanel Name="VisualisationStageStackPanel"/>
+                </ScrollViewer>
+                <ScrollViewer Name="VisualisationStackPanelScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" ScrollChanged="VisualisationScrollChanged" Grid.Column="1">
+                    <StackPanel Name="VisualisationStackPanel" SizeChanged="VisualisationStackPanel_SizeChanged"/>
+                </ScrollViewer>
+            </Grid>
         </GroupBox>
         <!-- TextBlock to display generated text -->
         <GroupBox Header="Text Output" Grid.Row="1" Grid.Column="2" Margin="10,0,0,20" Padding="10">
