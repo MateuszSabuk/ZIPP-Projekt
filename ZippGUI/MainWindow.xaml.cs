@@ -17,6 +17,8 @@ using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Reflection.PortableExecutable;
 using System.Collections;
+using System.Data;
+using System;
 
 namespace ZippGUI
 {
@@ -44,6 +46,7 @@ namespace ZippGUI
 
         private void GenerateButtonClick(object sender, RoutedEventArgs e)
         {
+            // No new generation during execution of another algorithm
             if (runThread != null && runThread.IsAlive) return;
             try
             {
@@ -52,15 +55,71 @@ namespace ZippGUI
                 int maxMIS = int.Parse(maxNumOfMachinesInStage.Text);
                 int maxTT = int.Parse(maxTaskTime.Text);
                 Tuple<int[], int[,]> data = manager.generate(s, n, maxMIS, maxTT);
-                GeneratedText.Text = generatedTuple2string(data);
                 machines = data.Item1;
                 taskTimes = data.Item2;
+                populateInstanceTextBoxes();
                 populateVisualisation();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Generate error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void populateInstanceTextBoxes()
+        {
+            // Convert machines (1D array) to string
+            DataTable machinesTable = new DataTable();
+
+            // Add columns
+            for (int col = 0; col < taskTimes.GetLength(1); col++)
+            {
+                machinesTable.Columns.Add($"Stage {col + 1}");
+            }
+            DataRow machineDataRow = machinesTable.NewRow();
+            for (int col = 0; col < taskTimes.GetLength(1); col++)
+            {
+                machineDataRow[col] = machines[col];
+            }
+            machinesTable.Rows.Add(machineDataRow);
+            MachinesDataGrid.ItemsSource = machinesTable.DefaultView;
+
+            // Convert taskTimes (2D array) to string
+            DataTable tasksTable = new DataTable();
+
+            tasksTable.Columns.Add($"ID");
+            // Add columns
+            for (int col = 0; col < taskTimes.GetLength(1); col++)
+            {
+                tasksTable.Columns.Add($"Stage {col + 1}");
+            }
+
+            // Add rows
+            for (int row = 0; row < taskTimes.GetLength(0); row++)
+            {
+                DataRow dataRow = tasksTable.NewRow();
+                dataRow[0] = row;
+                for (int col = 0; col < taskTimes.GetLength(1); col++)
+                {
+                    dataRow[col+1] = taskTimes[row, col];
+                }
+                tasksTable.Rows.Add(dataRow);
+            }
+            TasksDataGrid.ItemsSource = tasksTable.DefaultView;
+            TasksDataGrid.Columns[0].IsReadOnly = true;
+        }
+        private void TasksDataGrid_AddingNewRow(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            //// Check if it's a new row
+            //if (e.EditAction == System.Windows.Controls.DataGridEditAction.Commit)
+            //{
+            //    // Update the index column for the new row
+            //    var rowView = e.Row.Item as DataRowView;
+            //    if (rowView != null && rowView.Row.RowState == DataRowState.Added)
+            //    {
+            //        rowView["ID"] = TasksDataGrid.Items.Count;
+            //    }
+            //}
         }
 
         private void populateVisualisation()
@@ -187,39 +246,6 @@ namespace ZippGUI
             }
         }
 
-        private string generatedTuple2string(Tuple<int[], int[,]> instance)
-        {
-            // Extract machines and taskTimes from the Tuple
-            int[] machines = instance.Item1;
-            int[,] taskTimes = instance.Item2;
-
-            // Initialize result string
-            StringBuilder str = new StringBuilder();
-            str.AppendLine("Instance object:");
-            str.AppendLine("Stages:");
-
-            // Convert machines (1D array) to string
-            str.Append("[");
-            for (int i = 0; i < machines.Length - 1; i++)
-            {
-                str.Append(machines[i].ToString() + ", ");
-            }
-            str.Append(machines[machines.Length - 1].ToString() + "]\n");
-
-            // Convert taskTimes (2D array) to string
-            str.AppendLine("Tasks:");
-            for (int i = 0; i < taskTimes.GetLength(0); i++)
-            {
-                str.Append("T"+i+" [");
-                for (int j = 0; j < taskTimes.GetLength(1) - 1; j++)
-                {
-                    str.Append(taskTimes[i, j].ToString() + ", ");
-                }
-                str.Append(taskTimes[i, taskTimes.GetLength(1) - 1].ToString() + "]\n");
-            }
-
-            return str.ToString();
-        }
         public static string answerTuple2string(Tuple<int, int>[,]? tuples)
         {
             if (tuples == null) return "no results";

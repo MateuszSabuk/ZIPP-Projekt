@@ -14,7 +14,7 @@
             <ColumnDefinition Width = "2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <!-- Group 1: Number Inputs and Generate Button -->
@@ -138,7 +138,7 @@
         </GroupBox>
 
         <!-- Group 3: Run Button and Output -->
-        <GroupBox Grid.Column="1" Grid.RowSpan="2" Header="Input Parameters" Margin="10,0,0,20" Padding="10">
+        <GroupBox Grid.Column="1" Grid.RowSpan="2" Header="Instance control" Margin="10,0,0,20" Padding="10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -146,17 +146,21 @@
                 </Grid.RowDefinitions>
                 <!-- TextBlock to display generated text -->
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <TextBox x:Name="GeneratedText" 
-                        Margin="0,10,0,10"
-                        Width="Auto"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Text="{Binding Text, Mode=OneWay}"
-                        IsReadOnly="True"
-                        TextWrapping="Wrap" 
-                        FontWeight="Bold" 
-                        FontSize="14"
-                        Foreground="#333333" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- Label and Input for MachinesTextBox -->
+                        <Label Content="Numbers of machines" FontWeight="Bold" Grid.Row="0" Margin="0,0,0,5"/>
+                        <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" />
+
+                        <!-- Label and Input for TasksTextBox -->
+                        <Label Content="Number of Tasks" FontWeight="Bold" Grid.Row="2" Margin="0,0,0,5"/>
+                        <DataGrid x:Name="TasksDataGrid" Grid.Row="3" RowEditEnding="TasksDataGrid_AddingNewRow"/>
+                    </Grid>
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="1" Orientation="Vertical">
