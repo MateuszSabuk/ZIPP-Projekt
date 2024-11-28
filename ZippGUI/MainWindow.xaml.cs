@@ -446,5 +446,15 @@ namespace ZippGUI
                 VisualisationStackPanelStageScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
             }
         }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
