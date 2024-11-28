@@ -19,6 +19,8 @@ using System.Reflection.PortableExecutable;
 using System.Collections;
 using System.Data;
 using System;
+using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace ZippGUI
 {
@@ -33,10 +35,22 @@ namespace ZippGUI
         private Thread? runThread;
         private Stack<string> visualisationTaskNames = new Stack<string>();
 
+        // Display timers
+        DateTime runStartTime = DateTime.Now;
+        DispatcherTimer runTimer;
+        bool runTimerTriggered = false;
+        DateTime renderStartTime = DateTime.Now;
+        DispatcherTimer renderTimer;
+        bool renderTimerTriggered = false;
+
         public MainWindow()
         {
             manager = new SolverManager();
             InitializeComponent();
+            runTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 50), DispatcherPriority.Background, callback: runTimer_Tick, Dispatcher.CurrentDispatcher);
+            runTimer.Stop();
+            renderTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 50), DispatcherPriority.Background, callback: renderTimer_Tick, Dispatcher.CurrentDispatcher);
+            renderTimer.Stop();
             // Set default values for the inputs
             numOfStages.Text = "4";
             numOfTasks.Text = "10";
@@ -194,7 +208,11 @@ namespace ZippGUI
         {
             if (runThread != null && runThread.IsAlive) return;
             int algId = AlgorithmChoice.SelectedIndex;
-            
+
+            runTimerTriggered = false;
+            runTimer.Start();
+            runStartTime = DateTime.Now;
+
             runThread = new Thread(new ThreadStart(() =>
             {
                 Dispatcher.Invoke(() =>
@@ -220,6 +238,8 @@ namespace ZippGUI
                 }
                 Dispatcher.Invoke(() =>
                 {
+                    runTimer.Stop();
+                    if (!runTimerTriggered) TimerDisplay.Content = "< 50ms";
                     visualizeSchedule(result);
                     RunButton.IsEnabled = true;
                     StopButton.IsEnabled = false;
@@ -231,7 +251,17 @@ namespace ZippGUI
             }));
             runThread.Start();
         }
-        
+        private void runTimer_Tick(object sender, EventArgs e)
+        {
+            runTimerTriggered = true;
+            TimerDisplay.Content = Convert.ToString(DateTime.Now - runStartTime);
+        }
+        private void renderTimer_Tick(object sender, EventArgs e)
+        {
+            renderTimerTriggered = true;
+            RenderTimerDisplay.Content = Convert.ToString(DateTime.Now - renderStartTime);
+        }
+
         private void visualizeSchedule(Tuple<int, int>[,]? result)
         {
             if (result == null)
@@ -239,6 +269,7 @@ namespace ZippGUI
                 AnswerText.Text = "no results";
                 return;
             }
+            renderTimer.Start();
             AnswerText.Text = answerTuple2string(result);
 
             for (int stageIndex = 0; stageIndex < result.GetLength(1); stageIndex++)
@@ -279,6 +310,8 @@ namespace ZippGUI
                 }
             }
             VisualisationStackPanel.MinWidth = cmax * visualisationScale > VisualisationStackPanel.ViewportWidth ? cmax * visualisationScale : VisualisationStackPanel.ViewportWidth;
+            renderTimer.Stop();
+            if (!renderTimerTriggered) RenderTimerDisplay.Content = "< 50ms";
         }
 
         public static string answerTuple2string(Tuple<int, int>[,]? tuples)
