@@ -3,8 +3,8 @@
 Manager::Manager()
 {
 	//// TODO Add all algorithms
-	algorithms.push_back(std::make_unique<Bruteforce>());
 	algorithms.push_back(std::make_unique<SimulatedAnnealing>());
+	algorithms.push_back(std::make_unique<Bruteforce>());
 	algorithms.push_back(std::make_unique<NEH>());
 }
 

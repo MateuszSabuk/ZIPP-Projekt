@@ -21,6 +21,8 @@ using System.Data;
 using System;
 using System.Collections.Generic;
 using System.Windows.Threading;
+using System.IO;
+using Microsoft.Win32;
 
 namespace ZippGUI
 {
@@ -473,12 +475,111 @@ namespace ZippGUI
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*",
+                Title = "Save Binary File"
+            };
 
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    SaveBinaryFile(saveFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "File save error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*",
+                Title = "Open Binary File"
+            };
 
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    LoadBinaryFile(openFileDialog.FileName);
+                    populateInstanceTextBoxes();
+                    populateVisualisation();
+                    numOfStages.Text = machines.Length.ToString();
+                    numOfTasks.Text = taskTimes.GetLength(0).ToString();
+                    maxNumOfMachinesInStage.Text = machines.Max().ToString();
+                    maxTaskTime.Text = taskTimes.Cast<int>().Max().ToString();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "File load error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void SaveBinaryFile(string filePath)
+        {
+            using (BinaryWriter writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+            {
+                //writer.Write("MM");
+                // Write the length of the machines array
+                writer.Write(machines.Length);
+
+                // Write the machines array
+                foreach (int machine in machines)
+                {
+                    writer.Write(machine);
+                }
+
+                // Write the dimensions of the taskTimes array
+                writer.Write(taskTimes.GetLength(0)); // Number of rows
+                writer.Write(taskTimes.GetLength(1)); // Number of columns
+
+                // Write the taskTimes array
+                for (int i = 0; i < taskTimes.GetLength(0); i++)
+                {
+                    for (int j = 0; j < taskTimes.GetLength(1); j++)
+                    {
+                        writer.Write(taskTimes[i, j]);
+                    }
+                }
+            }
+        }
+
+        private void LoadBinaryFile(string filePath)
+        {
+            using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+            {
+                // Read the length of the machines array
+                //string s = reader.ReadString();
+                int machinesLength = reader.ReadInt32();
+                int[] machinesFromFile = new int[machinesLength];
+                for (int i = 0; i < machinesLength; i++)
+                {
+                    machinesFromFile[i] = reader.ReadInt32();
+                }
+
+                // Read the dimensions of the taskTimes array
+                int rows = reader.ReadInt32();
+                int cols = reader.ReadInt32();
+                int[,] taskTimesFromFile = new int[rows, cols];
+
+                // Read the taskTimes array
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        taskTimesFromFile[i, j] = reader.ReadInt32();
+                    }
+                }
+                // Validate data
+                machines = machinesFromFile;
+                taskTimes = taskTimesFromFile;
+            }
         }
 
         private void MachinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
