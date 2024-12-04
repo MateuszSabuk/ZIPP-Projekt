@@ -146,6 +146,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -160,63 +161,64 @@
                     </Grid.RowDefinitions>
                     <!-- Label and Input for MachinesTextBox -->
                     <Label Content="Numbers of machines" FontWeight="Bold" Grid.Row="0" Margin="0,0,0,5"/>
-                    <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" CanUserAddRows="False" />
+                    <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" EnableColumnVirtualization="True" CanUserAddRows="False" />
 
                     <!-- Label and Input for TasksTextBox -->
                     <Label Content="Number of Tasks" FontWeight="Bold" Grid.Row="2" Margin="0,0,0,5"/>
                 </Grid>
-                <DataGrid x:Name="TasksDataGrid" Grid.Row="1" Grid.ColumnSpan="2" RowEditEnding="TasksDataGrid_AddingNewRow" PreviewTextInput="NumberValidationTextBox" CellEditEnding="TasksDataGrid_CellEditEnding"/>
-
-                <StackPanel Grid.Row="2" Orientation="Vertical">
-                    <!-- Run Button -->
-                    <Button Content="Load instance" 
-                        Name="LoadButton"
-                        Height="56"
-                        Width="122"
-                        Background="#4CAF50" 
-                        Foreground="White" 
-                        FontWeight="Bold"
-                        Margin="0,10,0,10"
-                        Click="LoadButton_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                <DataGrid x:Name="TasksDataGrid" Grid.Row="1" Grid.ColumnSpan="2" EnableColumnVirtualization="True" EnableRowVirtualization="True" RowEditEnding="TasksDataGrid_AddingNewRow" PreviewTextInput="NumberValidationTextBox" CellEditEnding="TasksDataGrid_CellEditEnding"/>
+                <!-- Run Button -->
+                <Button Content="Load instance"
+                    Grid.Row="2"
+                    Name="LoadButton"
+                    Height="56"
+                    Width="122"
+                    Background="#4CAF50" 
+                    Foreground="White" 
+                    FontWeight="Bold"
+                    Margin="0,10,0,10"
+                    Click="LoadButton_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
                     <!-- Save Button -->
-                    <Button Content="Save instance" 
-                        Name="SaveButton"
-                        VerticalAlignment="Bottom"
-                        Height="56" 
-                        Width="122" 
-                        Background="#4CAF50" 
-                        Foreground="White" 
-                        FontWeight="Bold" 
-                        Margin="0,10,0,0"
-                        Click="SaveButton_Click"/>
-                </StackPanel>
+                <Button Content="Save instance" 
+                    Grid.Row="3"
+                    Name="SaveButton"
+                    VerticalAlignment="Bottom"
+                    Height="56" 
+                    Width="122" 
+                    Background="#4CAF50" 
+                    Foreground="White" 
+                    FontWeight="Bold" 
+                    Margin="0,10,0,0"
+                    Click="SaveButton_Click"/>
 
-                <StackPanel Grid.Row="2" Orientation="Vertical" Grid.Column="1">
                     <!-- Run Button -->
-                    <Button Content="Run" 
-                            Name="RunButton"
-                            Height="56"
-                            Width="122"
-                            Background="#2196F3" 
-                            Foreground="White" 
-                            FontWeight="Bold"
-                            Margin="0,10,0,10"
-                            Click="Run_Button_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                <Button Content="Run"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Name="RunButton"
+                    Height="56"
+                    Width="122"
+                    Background="#2196F3" 
+                    Foreground="White" 
+                    FontWeight="Bold"
+                    Margin="0,10,0,10"
+                    Click="Run_Button_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
                     <!-- Stop Button -->
-                    <Button Content="Stop" 
-                            IsEnabled="False"
-                            Name="StopButton"
-                            VerticalAlignment="Bottom"
-                            Height="56" 
-                            Width="122" 
-                            Background="#ff2222" 
-                            Foreground="White" 
-                            FontWeight="Bold" 
-                            Margin="0,10,0,0"
-                            Click="StopButton_Click"/>
-                </StackPanel>
+                <Button Content="Stop" 
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    IsEnabled="False"
+                    Name="StopButton"
+                    VerticalAlignment="Bottom"
+                    Height="56" 
+                    Width="122" 
+                    Background="#ff2222" 
+                    Foreground="White" 
+                    FontWeight="Bold" 
+                    Margin="0,10,0,0"
+                    Click="StopButton_Click"/>
             </Grid>
         </GroupBox>
 
@@ -227,10 +229,10 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <ScrollViewer Name="VisualisationStackPanelStageScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden" Grid.Column="0" ScrollChanged="VisualisationScrollChanged">
-                    <StackPanel Name="VisualisationStageStackPanel"/>
+                    <VirtualizingStackPanel Name="VisualisationStageStackPanel"/>
                 </ScrollViewer>
                 <ScrollViewer Name="VisualisationStackPanelScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" ScrollChanged="VisualisationScrollChanged" Grid.Column="1">
-                    <StackPanel Name="VisualisationStackPanel" SizeChanged="VisualisationStackPanel_SizeChanged"/>
+                    <VirtualizingStackPanel Name="VisualisationStackPanel" SizeChanged="VisualisationStackPanel_SizeChanged"/>
                 </ScrollViewer>
             </Grid>
         </GroupBox>
@@ -244,8 +246,6 @@
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Time running:" FontWeight="Bold" Margin="0,0,0,5"/>
                     <Label x:Name="TimerDisplay" Content="0.0" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <Label Content="Time rendering:" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <Label x:Name="RenderTimerDisplay" Content="0.0" FontWeight="Bold" Margin="0,0,0,5"/>
                 </StackPanel>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
                     <TextBox
