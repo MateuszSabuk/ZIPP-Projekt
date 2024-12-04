@@ -161,7 +161,7 @@
                     </Grid.RowDefinitions>
                     <!-- Label and Input for MachinesTextBox -->
                     <Label Content="Numbers of machines" FontWeight="Bold" Grid.Row="0" Margin="0,0,0,5"/>
-                    <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" EnableColumnVirtualization="True" CanUserAddRows="False" />
+                    <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" EnableColumnVirtualization="True" CanUserAddRows="False" CellEditEnding="MachinesDataGrid_CellEditEnding" PreviewTextInput="NumberValidationTextBox" />
 
                     <!-- Label and Input for TasksTextBox -->
                     <Label Content="Number of Tasks" FontWeight="Bold" Grid.Row="2" Margin="0,0,0,5"/>

@@ -446,6 +446,9 @@ namespace ZippGUI
 
         private void TasksDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
+            var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
+            ((TextBox)e.EditingElement).Text = val.ToString();
+            taskTimes[e.Row.GetIndex(),e.Column.DisplayIndex-1] = val;
             populateVisualisation();
         }
 
@@ -476,6 +479,14 @@ namespace ZippGUI
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void MachinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
+            ((TextBox)e.EditingElement).Text = val.ToString();
+            machines[e.Column.DisplayIndex] = val;
+            populateVisualisation();
         }
     }
 }
