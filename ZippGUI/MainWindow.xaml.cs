@@ -298,7 +298,8 @@ namespace ZippGUI
                     }
                 }
             }
-            VisualisationStackPanel.MinWidth = cmax * visualisationScale > VisualisationStackPanel.ViewportWidth ? cmax * visualisationScale : VisualisationStackPanel.ViewportWidth;
+            VisualisationStackPanel.MinWidth = cmax * visualisationScale > VisualisationStackPanel.ViewportWidth ? cmax * visualisationScale + visualisationScale : VisualisationStackPanel.ViewportWidth + visualisationScale;
+            cMaxDisplay.Content = cmax;
         }
 
         public static string answerTuple2string(Tuple<int, int>[,]? tuples)
