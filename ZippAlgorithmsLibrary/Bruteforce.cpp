@@ -9,7 +9,7 @@ Bruteforce::Bruteforce() : Algorithm("Bruteforce")
 	parameters.insert({ "Thread number" , std::thread::hardware_concurrency() });
 }
 
-std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
+std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int>& solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
 {
     int maxThreads = std::thread::hardware_concurrency();
     int requestedThreads = parameters["Thread number"];
@@ -18,12 +18,14 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
     auto schedule = std::vector<std::vector<std::pair<int, int>>>(taskTimes.size(), std::vector<std::pair<int, int>>(machines.size()));
 
     int minTime = std::numeric_limits<int>::max();
+    std::vector<int> bestYetPermutation;
     std::mutex mtx;
 
     auto worker = [&](std::vector<int> permutation, int numOfPermutations)
     {
         int localMinTime = std::numeric_limits<int>::max();
         std::vector<std::vector<std::pair<int, int>>> localSchedule;
+        std::vector<int> localPermutation;
 
         int i = 0;
         do
@@ -36,6 +38,7 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
             if (time < localMinTime) {
                 localMinTime = time;
                 localSchedule = permutationSchedule;
+                localPermutation = permutation;
             }
         }
         while (++i < numOfPermutations && std::next_permutation(permutation.begin(), permutation.end()));
@@ -45,6 +48,7 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
         if (localMinTime < minTime) {
             minTime = localMinTime;
             schedule = localSchedule;
+            bestYetPermutation = localPermutation;
         }
     };
 
@@ -80,6 +84,8 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(const std::vecto
         }
     }
     if (isCanceled) throw "canceled";
+
+    solvedPermutation = bestYetPermutation;
 
     return schedule;
 }

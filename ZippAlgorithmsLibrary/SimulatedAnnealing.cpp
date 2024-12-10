@@ -9,7 +9,7 @@ SimulatedAnnealing::SimulatedAnnealing() : Algorithm("Simulated Annealing") {
 	parameters.insert({ "Cooling schedule", Exp });
 }
 
-std::vector<std::vector<std::pair<int, int>>> SimulatedAnnealing::start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) {
+std::vector<std::vector<std::pair<int, int>>> SimulatedAnnealing::start(std::vector<int>& solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) {
 	static std::random_device rand_device;
 	static std::mt19937 rand_gen(rand_device());
 	std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -23,6 +23,7 @@ std::vector<std::vector<std::pair<int, int>>> SimulatedAnnealing::start(const st
 	std::iota(current_order.begin(), current_order.end(), 0);
 	std::shuffle(current_order.begin(), current_order.end(), rand_gen);
 	int best_cmax;
+	std::vector<int> best_order;
 	std::vector<std::vector<std::pair<int, int>>> best_schedule = create_schedule(best_cmax, machines, taskTimes, current_order);
 	int current_cmax = best_cmax;
 	for (size_t iter = 0; iter < max_iter /* && current_temp > min_temp */ ; iter++) {
@@ -46,11 +47,12 @@ std::vector<std::vector<std::pair<int, int>>> SimulatedAnnealing::start(const st
 		if (current_cmax < best_cmax){
 			best_cmax = current_cmax;
 			best_schedule = current_schedule;
+			best_order = current_order;
 		}
 
 		current_temp = calculate_temperature(iter);
 	}
-
+	solvedPermutation = best_order;
 	return best_schedule;
 }
 

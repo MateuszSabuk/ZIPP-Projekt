@@ -30,9 +30,9 @@ void Algorithm::cancel()
     isCanceled = true;
 }
 
-std::vector<std::vector<std::pair<int, int>>> Algorithm::run(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) {
+std::vector<std::vector<std::pair<int, int>>> Algorithm::run(std::vector<int> & solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) {
     isCanceled = false;
-    return start(machines, taskTimes);
+    return start(solvedPermutation, machines, taskTimes);
 }
 
 std::vector<std::vector<std::pair<int, int>>> Algorithm::create_schedule(int& cmax, const std::vector<int>& machines, const std::vector<std::vector<int>>& task_times, const std::vector<int>& order) {

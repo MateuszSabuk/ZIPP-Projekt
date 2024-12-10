@@ -68,7 +68,7 @@ void Manager::setAlgorithmParams(int algId, const std::unordered_map<std::string
 	algorithms[algId]->setParams(params);
 }
 
-std::vector<std::vector<std::pair<int, int>>> Manager::run(int algId, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
+std::vector<std::vector<std::pair<int, int>>> Manager::run(std::vector<int>& permutation, int algId, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
 {
 	// Argument validation
 	if (algId < 0 || algId >= size(algorithms)) throw std::invalid_argument("algId out of range");
@@ -84,7 +84,7 @@ std::vector<std::vector<std::pair<int, int>>> Manager::run(int algId, const std:
 
 
 	// Run the algorithm
-	return algorithms[algId]->run(machines, taskTimes);
+	return algorithms[algId]->run(permutation, machines, taskTimes);
 }
 
 void Manager::cancelAlgorithm()

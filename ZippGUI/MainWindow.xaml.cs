@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Windows.Threading;
 using System.IO;
 using Microsoft.Win32;
+using System.Windows.Diagnostics;
 
 namespace ZippGUI
 {
@@ -223,9 +224,11 @@ namespace ZippGUI
 
                 });
                 Tuple<int, int>[,]? result = null;
+                int[] solvedPermutation = new int[taskTimes.GetLength(0)];
                 try
                 {
-                    result = manager.run(algId, machines, taskTimes);
+                    solvedPermutation = new int[5];
+                    (result, solvedPermutation) = manager.run(algId, machines, taskTimes);
                 } catch (Exception ex)
                 {
                     if (ex.Message != "canceled")
@@ -238,6 +241,7 @@ namespace ZippGUI
                     runTimer.Stop();
                     if (!runTimerTriggered) TimerDisplay.Content = "< 50ms";
                     visualizeSchedule(result);
+                    SolvedPermutationLabel.Content = string.Join(", ", solvedPermutation);
                     RunButton.IsEnabled = true;
                     StopButton.IsEnabled = false;
                     GenerateButton.IsEnabled = true;

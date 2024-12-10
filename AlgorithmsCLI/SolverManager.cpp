@@ -55,7 +55,7 @@ namespace CLI
         m_Instance->setAlgorithmParams(algId, paramsMap);
     }
 
-    array<Tuple<int, int>^, 2>^ SolverManager::run(int algId, array<int>^ machines, array<int, 2>^ taskTimes)
+    Tuple<array<Tuple<int, int>^, 2>^, array<int>^>^ SolverManager::run(int algId, array<int>^ machines, array<int, 2>^ taskTimes)
     {
         // Convert managed array<int> to std::vector<int>
         std::vector<int> machineVec(machines->Length);
@@ -75,10 +75,11 @@ namespace CLI
             }
             taskTimesVec.push_back(taskRow);
         }
+        std::vector<int> solvedPermutationVec;
 
         // Call the C++ function
         try {
-            auto solution = m_Instance->run(algId, machineVec, taskTimesVec);
+            auto solution = m_Instance->run(solvedPermutationVec, algId, machineVec, taskTimesVec);
 
             // Convert std::vector<std::vector<std::pair<int, int>>> to array<Tuple<int, int>^, 2>
             int rows = static_cast<int>(solution.size());
@@ -93,8 +94,8 @@ namespace CLI
                     result[i, j] = gcnew Tuple<int, int>(solution[i][j].first, solution[i][j].second);
                 }
             }
-
-            return result;
+            array<int>^ solvedPermutation = vec2array(solvedPermutationVec);
+            return gcnew Tuple<array<Tuple<int, int>^, 2>^, array<int>^>(result, solvedPermutation);
         }
         catch (const char* ex) {
             throw gcnew Exception(gcnew String(ex));

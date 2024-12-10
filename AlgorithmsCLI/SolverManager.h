@@ -22,7 +22,7 @@ namespace CLI
         void setAlgorithmParams(int algId, System::Collections::Generic::Dictionary<String^, int>^ params);
 
         // Run the chosen algorithm solve
-        array<Tuple<int,int>^, 2>^ run(int algId, array<int>^ machines, array<int, 2>^ taskTimes);
+        Tuple<array<Tuple<int,int>^, 2>^, array<int>^>^ run(int algId, array<int>^ machines, array<int, 2>^ taskTimes);
         // Cancel the solve of the running algorithm
         void cancelAlgorithm();
         

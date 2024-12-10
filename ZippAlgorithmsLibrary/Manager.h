@@ -18,7 +18,7 @@ public:
 	// Returns a pair of vectors:
 	// - vector of numbers of machines for each stage
 	// - vector for each task containing a vector with times for each stage
-	std::pair<std::vector<int>, std::vector<std::vector<int>>> generate(int numOfStages, int numOfTasks, int maxNumOfMachinesInStage, int maxTaskTime);
+	std::pair<std::vector<int>, std::vector<std::vector<int>>> generate(int solvedPermutation, int numOfTasks, int maxNumOfMachinesInStage, int maxTaskTime);
 
 	// Get names of all available algorithms
 	std::vector<std::string> getAlgorithmNames();
@@ -28,7 +28,7 @@ public:
 	void setAlgorithmParams(int algId, const std::unordered_map<std::string, int> &params);
 
 	// Run the chosen algorithm solve
-	std::vector<std::vector<std::pair<int, int>>> run(int algId, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes);
+	std::vector<std::vector<std::pair<int, int>>> run(std::vector<int>& solvedPermutation, int algId, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes);
 	// Cancel the solve of the running algorithm
 	void cancelAlgorithm();
 

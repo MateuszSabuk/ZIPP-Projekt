@@ -18,7 +18,7 @@ public:
     // Sets parameters of the algorithm object
     void setParams(std::unordered_map<std::string, int> params);
     // Starts the solve using the input data and set parameters
-    std::vector<std::vector<std::pair<int, int>>> run(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes);
+    std::vector<std::vector<std::pair<int, int>>> run(std::vector<int>& solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes);
     // Sets the cancel flag
     void cancel();
 
@@ -31,7 +31,7 @@ protected:
     std::unordered_map<std::string, int> parameters;
 
     // Overrideable function called by run() after setting cancel flag low
-    virtual std::vector<std::vector<std::pair<int, int>>> start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) = 0;
+    virtual std::vector<std::vector<std::pair<int, int>>> start(std::vector<int>& solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) = 0;
 
     // Sets cmax to the time of execution of the schedule
     // Returns a 2D vector of size n*s of std::pair<int,int>

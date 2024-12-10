@@ -8,5 +8,5 @@ class Bruteforce : public Algorithm
 {
 public:
     Bruteforce();
-    std::vector<std::vector<std::pair<int, int>>> start(const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) override;
+    std::vector<std::vector<std::pair<int, int>>> start(std::vector<int>& solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) override;
 };
