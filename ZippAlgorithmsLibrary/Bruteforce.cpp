@@ -21,13 +21,13 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int>
     std::vector<int> bestYetPermutation;
     std::mutex mtx;
 
-    auto worker = [&](std::vector<int> permutation, int numOfPermutations)
+    auto worker = [&](std::vector<int> permutation, size_t numOfPermutations)
     {
         int localMinTime = std::numeric_limits<int>::max();
         std::vector<std::vector<std::pair<int, int>>> localSchedule;
         std::vector<int> localPermutation;
 
-        int i = 0;
+        size_t i = 0;
         do
         {
             if (isCanceled) return;
@@ -61,8 +61,8 @@ std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int>
     for (int i = 1; i <= startPermutation.size(); ++i) {
         permutationCount *= i;
     }
-    int chunkSize = permutationCount / threadCount;
-    int remainder = permutationCount % threadCount;
+    size_t chunkSize = permutationCount / threadCount;
+    size_t remainder = permutationCount % threadCount;
     
     for (int i = 1; i < threadCount; i++) {
         int length = chunkSize + (i <= remainder ? 1 : 0);
