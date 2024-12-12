@@ -209,25 +209,6 @@ namespace ZippGUI
             return textBefore + inputText + textAfter;
         }
 
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox textBox)
-            {
-                string text = textBox.Text;
-                text = text.TrimStart('-').TrimStart('0');
-                if (new Regex("^-.*$").IsMatch(textBox.Text))
-                {
-                    text = '-' + text;
-                }
-
-                if (string.IsNullOrWhiteSpace(text) || text == "-")
-                {
-                    text = "0";
-                }
-                textBox.Text = text;
-            }
-        }
-
         private void AlgorithmChoice_Loaded(object sender, EventArgs e)
         {
             string[] algorithmNames = manager.getAlgorithmNames();
@@ -409,7 +390,6 @@ namespace ZippGUI
                     Margin = new Thickness(10, 0, 0, 0)
                 };
                 textBox.PreviewTextInput += new TextCompositionEventHandler(NumberValidationTextBoxChange);
-                textBox.LostFocus += new RoutedEventHandler(TextBox_LostFocus);
 
                 // Add the label and textbox to the paramPanel
                 paramPanel.Children.Add(label);
