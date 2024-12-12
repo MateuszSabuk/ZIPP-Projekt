@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ZippGUI"
         mc:Ignorable="d"
         Title="MainWindow" Height="961" Width="1306"
-        Background="#F0F0F0" SizeToContent="Height" Closing="Window_Closing">
+        Background="#F0F0F0" Closing="Window_Closing">
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width = "Auto"/>
