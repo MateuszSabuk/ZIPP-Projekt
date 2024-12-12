@@ -34,7 +34,7 @@
                         BorderBrush="#C0C0C0" 
                         BorderThickness="1"
                         Padding="5"
-                        PreviewTextInput="NumberValidationTextBox" />
+                        PreviewTextInput="PositiveNumberValidationTextBoxChange" />
                     </StackPanel>
 
                     <!-- Label and Input for numOfTasks -->
@@ -45,7 +45,7 @@
                                 BorderBrush="#C0C0C0" 
                                 BorderThickness="1"
                                 Padding="5"
-                                PreviewTextInput="NumberValidationTextBox" />
+                                PreviewTextInput="PositiveNumberValidationTextBoxChange" />
                     </StackPanel>
 
                     <!-- Label and Input for maxNumOfMachinesInStage -->
@@ -56,7 +56,7 @@
                                 BorderBrush="#C0C0C0" 
                                 BorderThickness="1"
                                 Padding="5"
-                                PreviewTextInput="NumberValidationTextBox" />
+                                PreviewTextInput="PositiveNumberValidationTextBoxChange" />
                     </StackPanel>
 
                     <!-- Label and Input for maxTaskTime -->
@@ -67,7 +67,7 @@
                                 BorderBrush="#C0C0C0" 
                                 BorderThickness="1"
                                 Padding="5"
-                                PreviewTextInput="NumberValidationTextBox" />
+                                PreviewTextInput="PositiveNumberValidationTextBoxChange" />
                     </StackPanel>
                 </StackPanel>
                 <!-- Generate Button -->
@@ -161,12 +161,12 @@
                     </Grid.RowDefinitions>
                     <!-- Label and Input for MachinesTextBox -->
                     <Label Content="Numbers of machines" FontWeight="Bold" Grid.Row="0" Margin="0,0,0,5"/>
-                    <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" EnableColumnVirtualization="True" CanUserAddRows="False" CellEditEnding="MachinesDataGrid_CellEditEnding" PreviewTextInput="NumberValidationTextBox" />
+                    <DataGrid x:Name="MachinesDataGrid" Grid.Row="1" CanUserResizeRows="False" EnableColumnVirtualization="True" CanUserAddRows="False" CellEditEnding="MachinesDataGrid_CellEditEnding" PreviewTextInput="PositiveNumberValidationTextBoxChange" />
 
                     <!-- Label and Input for TasksTextBox -->
                     <Label Content="Number of Tasks" FontWeight="Bold" Grid.Row="2" Margin="0,0,0,5"/>
                 </Grid>
-                <DataGrid x:Name="TasksDataGrid" Grid.Row="1" Grid.ColumnSpan="2" EnableColumnVirtualization="True" EnableRowVirtualization="True" RowEditEnding="TasksDataGrid_AddingNewRow" PreviewTextInput="NumberValidationTextBox" CellEditEnding="TasksDataGrid_CellEditEnding"/>
+                <DataGrid x:Name="TasksDataGrid" Grid.Row="1" Grid.ColumnSpan="2" EnableColumnVirtualization="True" EnableRowVirtualization="True" RowEditEnding="TasksDataGrid_AddingNewRow" PreviewTextInput="PositiveNumberValidationTextBoxChange" CellEditEnding="TasksDataGrid_CellEditEnding"/>
                 <!-- Run Button -->
                 <Button Content="Load instance"
                     Grid.Row="2"

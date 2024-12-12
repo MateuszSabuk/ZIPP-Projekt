@@ -185,10 +185,47 @@ namespace ZippGUI
             }
         }
 
-        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        private void PositiveNumberValidationTextBoxChange(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("^[0-9]+$");
             e.Handled = !regex.IsMatch(e.Text);
+        }
+
+        private void NumberValidationTextBoxChange(object sender, TextCompositionEventArgs e)
+        {
+            // Allow only a leading minus sign and digits
+            Regex regex = new Regex("^-?[0-9]*$");
+            e.Handled = !regex.IsMatch(GetProposedText(sender as TextBox, e.Text));
+        }
+
+        // Helper method to get the proposed text after the input
+        private string GetProposedText(TextBox textBox, string inputText)
+        {
+            if (textBox == null) return inputText;
+
+            // Determine the text as if the new input was added
+            var textBefore = textBox.Text.Substring(0, textBox.SelectionStart);
+            var textAfter = textBox.Text.Substring(textBox.SelectionStart + textBox.SelectionLength);
+            return textBefore + inputText + textAfter;
+        }
+
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                string text = textBox.Text;
+                text = text.TrimStart('-').TrimStart('0');
+                if (new Regex("^-.*$").IsMatch(textBox.Text))
+                {
+                    text = '-' + text;
+                }
+
+                if (string.IsNullOrWhiteSpace(text) || text == "-")
+                {
+                    text = "0";
+                }
+                textBox.Text = text;
+            }
         }
 
         private void AlgorithmChoice_Loaded(object sender, EventArgs e)
@@ -371,6 +408,8 @@ namespace ZippGUI
                     Padding = new Thickness(5),
                     Margin = new Thickness(10, 0, 0, 0)
                 };
+                textBox.PreviewTextInput += new TextCompositionEventHandler(NumberValidationTextBoxChange);
+                textBox.LostFocus += new RoutedEventHandler(TextBox_LostFocus);
 
                 // Add the label and textbox to the paramPanel
                 paramPanel.Children.Add(label);
