@@ -10,6 +10,14 @@ SimulatedAnnealing::SimulatedAnnealing() : Algorithm("Simulated Annealing") {
 }
 
 std::vector<std::vector<std::pair<int, int>>> SimulatedAnnealing::start(std::vector<int>& solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes) {
+	// Validation
+	if (parameters.at("Alpha") <= 0 || parameters.at("Alpha") >= 1000) throw "Alpha parameter has to be between 0 and 1000";
+	if (parameters.at("T0") <= 0) throw "T0 parameter has to be positive";
+	if (parameters.at("Tk") <= 0) throw "Tk parameter has to be positive";
+	if (parameters.at("Iterations") <= 0) throw "Iterations parameter has to be positive";
+	if (parameters.at("Neighbours num") <= 0 && parameters.at("Neighbours num") != -1) throw "Neighbours num parameter has to be positive or -1";
+	if (parameters.at("Cooling schedule") < 0 || parameters.at("Cooling schedule") > 2) throw "Cooling schedule parameter has to be 0, 1 or 2";
+	
 	static std::random_device rand_device;
 	static std::mt19937 rand_gen(rand_device());
 	std::uniform_real_distribution<> dis(0.0, 1.0);

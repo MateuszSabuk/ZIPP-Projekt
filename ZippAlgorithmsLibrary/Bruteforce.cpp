@@ -1,6 +1,7 @@
 #include "Bruteforce.h"
 #include <iostream>
 #include <numeric>
+#include <string>
 
 // Set the name of the algorithm
 Bruteforce::Bruteforce() : Algorithm("Bruteforce")
@@ -11,9 +12,12 @@ Bruteforce::Bruteforce() : Algorithm("Bruteforce")
 
 std::vector<std::vector<std::pair<int, int>>> Bruteforce::start(std::vector<int>& solvedPermutation, const std::vector<int> &machines, const std::vector<std::vector<int>> &taskTimes)
 {
+
     int maxThreads = std::thread::hardware_concurrency();
     int requestedThreads = parameters["Thread number"];
     int threadCount = std::min(requestedThreads, maxThreads > 0 ? maxThreads : 1);
+    // Validation
+    if (threadCount <= 0) throw "Thread number parameter must be positive";
 
     auto schedule = std::vector<std::vector<std::pair<int, int>>>(taskTimes.size(), std::vector<std::pair<int, int>>(machines.size()));
 
