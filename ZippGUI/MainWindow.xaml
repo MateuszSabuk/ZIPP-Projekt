@@ -166,7 +166,7 @@
                     <!-- Label and Input for TasksTextBox -->
                     <Label Content="Number of Tasks" FontWeight="Bold" Grid.Row="2" Margin="0,0,0,5"/>
                 </Grid>
-                <DataGrid x:Name="TasksDataGrid" Grid.Row="1" Grid.ColumnSpan="2" EnableColumnVirtualization="True" EnableRowVirtualization="True" RowEditEnding="TasksDataGrid_AddingNewRow" PreviewTextInput="PositiveNumberValidationTextBoxChange" CellEditEnding="TasksDataGrid_CellEditEnding" CanUserDeleteRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="False"/>
+                <DataGrid x:Name="TasksDataGrid" Grid.Row="1" Grid.ColumnSpan="2" EnableColumnVirtualization="True" EnableRowVirtualization="True" PreviewTextInput="PositiveNumberValidationTextBoxChange" CellEditEnding="TasksDataGrid_CellEditEnding" CanUserDeleteRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="False"/>
                 <!-- Run Button -->
                 <Button Content="Load instance"
                     Grid.Row="2"

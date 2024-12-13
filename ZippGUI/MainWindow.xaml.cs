@@ -43,6 +43,7 @@ namespace ZippGUI
         DispatcherTimer runTimer;
         bool runTimerTriggered = false;
 
+        // Populate main window values
         public MainWindow()
         {
             manager = new SolverManager();
@@ -56,6 +57,16 @@ namespace ZippGUI
             maxTaskTime.Text = "20";
         }
 
+        // /////////////// Generator section ///////////////
+
+        /// <summary>
+        /// Onclick for GenerateButton. <br/>
+        /// <list type="number" >
+        /// <item>Parses generate inputs and runs generator with the params.</item>
+        /// <item>Populates machines and taskTimes arrays.</item>
+        /// <item>Runs fillInstanceDataGrids and createGanttVisualisationStages</item>
+        /// </list>
+        /// </summary>
         private void GenerateButtonClick(object sender, RoutedEventArgs e)
         {
             // No new generation during execution of another algorithm
@@ -69,8 +80,8 @@ namespace ZippGUI
                 Tuple<int[], int[,]> data = manager.generate(s, n, maxMIS, maxTT);
                 machines = data.Item1;
                 taskTimes = data.Item2;
-                populateInstanceTextBoxes();
-                populateVisualisation();
+                fillInstanceDataGrids();
+                createGanttVisualisationStages();
             }
             catch (Exception ex)
             {
@@ -78,7 +89,10 @@ namespace ZippGUI
             }
         }
 
-        private void populateInstanceTextBoxes()
+        /// <summary>
+        /// Fills Instance tables using data from machines and taksTimes arrays.<br/>
+        /// </summary>
+        private void fillInstanceDataGrids()
         {
             // Convert machines (1D array) to string
             DataTable machinesTable = new DataTable();
@@ -121,21 +135,10 @@ namespace ZippGUI
             TasksDataGrid.Columns[0].IsReadOnly = true;
         }
 
-        private void TasksDataGrid_AddingNewRow(object sender, DataGridRowEditEndingEventArgs e)
-        {
-            //// Check if it's a new row
-            //if (e.EditAction == System.Windows.Controls.DataGridEditAction.Commit)
-            //{
-            //    // Update the index column for the new row
-            //    var rowView = e.Row.Item as DataRowView;
-            //    if (rowView != null && rowView.Row.RowState == DataRowState.Added)
-            //    {
-            //        rowView["ID"] = TasksDataGrid.Items.Count;
-            //    }
-            //}
-        }
-
-        private void populateVisualisation()
+        /// <summary>
+        /// Creates the machines on the gantt visualisation (placeholders for the tasks)
+        /// </summary>
+        private void createGanttVisualisationStages()
         {
             while (visualisationTaskNames.Count > 0)
             {
@@ -185,30 +188,12 @@ namespace ZippGUI
             }
         }
 
-        private void PositiveNumberValidationTextBoxChange(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("^[0-9]+$");
-            e.Handled = !regex.IsMatch(e.Text);
-        }
+        // /////////////// Algorithm choice and parameters selection section ///////////////
 
-        private void NumberValidationTextBoxChange(object sender, TextCompositionEventArgs e)
-        {
-            // Allow only a leading minus sign and digits
-            Regex regex = new Regex("^-?[0-9]*$");
-            e.Handled = !regex.IsMatch(GetProposedText(sender as TextBox, e.Text));
-        }
-
-        // Helper method to get the proposed text after the input
-        private string GetProposedText(TextBox textBox, string inputText)
-        {
-            if (textBox == null) return inputText;
-
-            // Determine the text as if the new input was added
-            var textBefore = textBox.Text.Substring(0, textBox.SelectionStart);
-            var textAfter = textBox.Text.Substring(textBox.SelectionStart + textBox.SelectionLength);
-            return textBefore + inputText + textAfter;
-        }
-
+        /// <summary>
+        /// Runs when the algorithm selection ComboBox is loaded to the GUI<br/>
+        /// Gets list of names of algorithms from the backend and puts them into the ComboBox
+        /// </summary>
         private void AlgorithmChoice_Loaded(object sender, EventArgs e)
         {
             string[] algorithmNames = manager.getAlgorithmNames();
@@ -220,6 +205,236 @@ namespace ZippGUI
             }
         }
 
+        /// <summary>
+        /// Called when algorithm selection ComboBox value changes<br/>
+        /// Calls PopulateAlgorithmParams for the chosen algorithm
+        /// </summary>
+        private void AlgorithmChoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (runThread != null && runThread.IsAlive) return;
+            PopulateAlgorithmParams(AlgorithmChoice.SelectedIndex);
+        }
+
+
+        /// <summary>
+        /// Gets the parameters from the chosen algorithm and displays them
+        /// </summary>
+        private void PopulateAlgorithmParams(int algId)
+        {
+            // Get the algorithm parameters from the getAlgorithmParams method
+            Dictionary<string, int> parameters = manager.getAlgorithmParams(algId);
+
+            // Clear existing children in the AlgorithmParamsPanel
+            AlgorithmParamsPanel.Children.Clear();
+
+            foreach (var param in parameters)
+            {
+                // Create a StackPanel to hold the label and textbox
+                StackPanel paramPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 5) };
+
+                // Create the label for the parameter
+                Label label = new Label
+                {
+                    Content = param.Key,
+                    Width = 150,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                // Create the TextBox for the parameter value
+                TextBox textBox = new TextBox
+                {
+                    Width = 100,
+                    Text = param.Value.ToString(),
+                    Background = System.Windows.Media.Brushes.White,
+                    BorderBrush = System.Windows.Media.Brushes.Gray,
+                    Padding = new Thickness(5),
+                    Margin = new Thickness(10, 0, 0, 0)
+                };
+                textBox.PreviewTextInput += new TextCompositionEventHandler(NumberValidationTextBoxChange);
+
+                // Add the label and textbox to the paramPanel
+                paramPanel.Children.Add(label);
+                paramPanel.Children.Add(textBox);
+
+                // Add the paramPanel to the AlgorithmParamsPanel
+                AlgorithmParamsPanel.Children.Add(paramPanel);
+            }
+        }
+
+        /// <summary>
+        /// Called on click of SetParameters button<br/>
+        /// Sends the parameters of the chosen algorithm to the backend
+        /// </summary>
+        private void SetParametersButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (runThread != null && runThread.IsAlive) return;
+            Dictionary<string, int> parameters = new Dictionary<string, int>();
+            foreach (StackPanel stackPanel in AlgorithmParamsPanel.Children)
+            {
+                string? name = stackPanel.Children.OfType<Label>().First().Content.ToString();
+                name = name == null ? string.Empty : name; // Ensure name is not null
+                int value = int.Parse(stackPanel.Children.OfType<TextBox>().First().Text);
+                parameters[name] = value;
+            }
+            manager.setAlgorithmParams(AlgorithmChoice.SelectedIndex, parameters);
+        }
+
+
+        // /////////////// Instance edition/saving/loading section ///////////////
+
+        private void TasksDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
+            ((TextBox)e.EditingElement).Text = val.ToString();
+            taskTimes[e.Row.GetIndex(), e.Column.DisplayIndex - 1] = val;
+            createGanttVisualisationStages();
+        }
+
+        private void MachinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
+            ((TextBox)e.EditingElement).Text = val.ToString();
+            machines[e.Column.DisplayIndex] = val;
+            createGanttVisualisationStages();
+        }
+
+        /// <summary>
+        /// Calls the Windows save window and calls the SaveBinaryFile function
+        /// </summary>
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*",
+                Title = "Save Binary File"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    SaveBinaryFile(saveFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "File save error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calls the Windows open window and calls the LoadBinaryFile function.<br/>
+        /// Fills the datagrids and fills refreshes the gant visualisation.<br/>
+        /// Fills generator values with edge values from the file.
+        /// </summary>
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*",
+                Title = "Open Binary File"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    LoadBinaryFile(openFileDialog.FileName);
+                    fillInstanceDataGrids();
+                    createGanttVisualisationStages();
+                    numOfStages.Text = machines.Length.ToString();
+                    numOfTasks.Text = taskTimes.GetLength(0).ToString();
+                    maxNumOfMachinesInStage.Text = machines.Max().ToString();
+                    maxTaskTime.Text = taskTimes.Cast<int>().Max().ToString();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "File load error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves the data from machines and taskTimes arrays to a binary file specified by the filePath argument
+        /// </summary>
+        private void SaveBinaryFile(string filePath)
+        {
+            using (BinaryWriter writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+            {
+                //writer.Write("MM");
+                // Write the length of the machines array
+                writer.Write(machines.Length);
+
+                // Write the machines array
+                foreach (int machine in machines)
+                {
+                    writer.Write(machine);
+                }
+
+                // Write the dimensions of the taskTimes array
+                writer.Write(taskTimes.GetLength(0)); // Number of rows
+                writer.Write(taskTimes.GetLength(1)); // Number of columns
+
+                // Write the taskTimes array
+                for (int i = 0; i < taskTimes.GetLength(0); i++)
+                {
+                    for (int j = 0; j < taskTimes.GetLength(1); j++)
+                    {
+                        writer.Write(taskTimes[i, j]);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads the data to machines and taskTimes arrays from a binary file specified by the filePath argument
+        /// </summary>
+        private void LoadBinaryFile(string filePath)
+        {
+            using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+            {
+                // Read the length of the machines array
+                //string s = reader.ReadString();
+                int machinesLength = reader.ReadInt32();
+                int[] machinesFromFile = new int[machinesLength];
+                for (int i = 0; i < machinesLength; i++)
+                {
+                    machinesFromFile[i] = reader.ReadInt32();
+                }
+
+                // Read the dimensions of the taskTimes array
+                int rows = reader.ReadInt32();
+                int cols = reader.ReadInt32();
+                int[,] taskTimesFromFile = new int[rows, cols];
+
+                // Read the taskTimes array
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        taskTimesFromFile[i, j] = reader.ReadInt32();
+                    }
+                }
+                // Validate data
+                machines = machinesFromFile;
+                taskTimes = taskTimesFromFile;
+            }
+        }
+
+
+        // /////////////// Run section ///////////////
+
+        /// <summary>
+        /// Called on run button click<br/>
+        /// <list type="number">
+        /// <item>Starts the timer</item>
+        /// <item>Disables buttons</item>
+        /// <item>Starts the algorithm</item>
+        /// <item>Stops the timer</item>
+        /// <item>Displays the effects of the program</item>
+        /// <item>Enables the buttons</item>
+        /// </list>
+        /// </summary>
         private void Run_Button_Click(object sender, RoutedEventArgs e)
         {
             if (runThread != null && runThread.IsAlive) return;
@@ -270,12 +485,42 @@ namespace ZippGUI
             }));
             runThread.Start();
         }
+
+        /// <summary>
+        /// Called on every tick of runTimer<br/>
+        /// Writes the value into the GUI timer
+        /// </summary>
         private void runTimer_Tick(object sender, EventArgs e)
         {
             runTimerTriggered = true;
             TimerDisplay.Content = Convert.ToString(DateTime.Now - runStartTime);
         }
 
+        /// <summary>
+        /// Called on onclick of StopButton<br/>
+        /// Sends the cancel signal to the backend
+        /// </summary>
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            manager.cancelAlgorithm();
+        }
+
+        /// <summary>
+        /// Called when window is closed<br/>
+        /// Sends the cancel signal to the backend
+        /// </summary>
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            manager.cancelAlgorithm();
+        }
+
+
+        // /////////////// Answer display section ///////////////
+
+        /// <summary>
+        /// Populates the Gantt chart with the tasks in the way specified by the schedule in result variable
+        /// </summary>
+        /// <param name="result">Schedule: an array of tasks each having an array of operations each having a tuple of nachine id for the stage and time of execution start</param>
         private void visualizeSchedule(Tuple<int, int>[,]? result)
         {
             if (result == null)
@@ -326,6 +571,9 @@ namespace ZippGUI
             cMaxDisplay.Content = cmax;
         }
 
+        /// <summary>
+        /// Returns the string for crude visualisation from the schedule array
+        /// </summary>
         public static string answerTuple2string(Tuple<int, int>[,]? tuples)
         {
             if (tuples == null) return "no results";
@@ -358,80 +606,7 @@ namespace ZippGUI
             return sb.ToString();
         }
 
-        private void PopulateAlgorithmParams(int algId)
-        {
-            // Get the algorithm parameters from the getAlgorithmParams method
-            Dictionary<string, int> parameters = manager.getAlgorithmParams(algId);
-
-            // Clear existing children in the AlgorithmParamsPanel
-            AlgorithmParamsPanel.Children.Clear();
-
-            foreach (var param in parameters)
-            {
-                // Create a StackPanel to hold the label and textbox
-                StackPanel paramPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 5) };
-
-                // Create the label for the parameter
-                Label label = new Label
-                {
-                    Content = param.Key,
-                    Width = 150,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-
-                // Create the TextBox for the parameter value
-                TextBox textBox = new TextBox
-                {
-                    Width = 100,
-                    Text = param.Value.ToString(),
-                    Background = System.Windows.Media.Brushes.White,
-                    BorderBrush = System.Windows.Media.Brushes.Gray,
-                    Padding = new Thickness(5),
-                    Margin = new Thickness(10, 0, 0, 0)
-                };
-                textBox.PreviewTextInput += new TextCompositionEventHandler(NumberValidationTextBoxChange);
-
-                // Add the label and textbox to the paramPanel
-                paramPanel.Children.Add(label);
-                paramPanel.Children.Add(textBox);
-
-                // Add the paramPanel to the AlgorithmParamsPanel
-                AlgorithmParamsPanel.Children.Add(paramPanel);
-            }
-        }
-
-        private void AlgorithmChoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (runThread != null && runThread.IsAlive) return;
-            PopulateAlgorithmParams(AlgorithmChoice.SelectedIndex);
-        }
-
-        
-        private void SetParametersButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (runThread != null && runThread.IsAlive) return;
-            Dictionary<string, int> parameters = new Dictionary<string, int>();
-            foreach (StackPanel stackPanel in AlgorithmParamsPanel.Children)
-            {
-                string? name = stackPanel.Children.OfType<Label>().First().Content.ToString();
-                name = name == null ? string.Empty : name; // Ensure name is not null
-                int value = int.Parse(stackPanel.Children.OfType<TextBox>().First().Text);
-                parameters[name] = value;
-            }
-            manager.setAlgorithmParams(AlgorithmChoice.SelectedIndex, parameters);
-        }
-
-        private void StopButton_Click(object sender, RoutedEventArgs e)
-        {
-            manager.cancelAlgorithm();
-        }
-
-        // Make sure all running threads are stopped
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            manager.cancelAlgorithm();
-        }
-
+        // Helper function to generate the colortable used by the gantt visualisation
         List<SolidColorBrush> GenerateEvenlySpacedColorTable(int colorCount)
         {
             List<SolidColorBrush> colorTable = new List<SolidColorBrush>();
@@ -469,14 +644,7 @@ namespace ZippGUI
             return Color.FromRgb(red, green, blue);
         }
 
-        private void TasksDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
-            ((TextBox)e.EditingElement).Text = val.ToString();
-            taskTimes[e.Row.GetIndex(),e.Column.DisplayIndex-1] = val;
-            populateVisualisation();
-        }
-
+        // Helper function for right Gantt visualisation scroll behaviour
         private void VisualisationScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (sender == VisualisationStackPanelScrollViewer)
@@ -485,132 +653,43 @@ namespace ZippGUI
                 VisualisationStackPanelScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
         }
 
+        // Helper function for right Gantt visualisation scroll behaviour
         private void VisualisationStackPanel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (VisualisationStackPanelScrollViewer.ComputedHorizontalScrollBarVisibility == Visibility.Visible)
             {
                 VisualisationStackPanelStageScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-            } else
+            }
+            else
             {
                 VisualisationStackPanelStageScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
             }
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        // /////////////// Validation section ///////////////
+        private void PositiveNumberValidationTextBoxChange(object sender, TextCompositionEventArgs e)
         {
-            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
-            {
-                Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*",
-                Title = "Save Binary File"
-            };
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    SaveBinaryFile(saveFileDialog.FileName);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "File save error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            Regex regex = new Regex("^[0-9]+$");
+            e.Handled = !regex.IsMatch(e.Text);
         }
 
-        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        private void NumberValidationTextBoxChange(object sender, TextCompositionEventArgs e)
         {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "Data Files (*.dat)|*.dat|All Files (*.*)|*.*",
-                Title = "Open Binary File"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    LoadBinaryFile(openFileDialog.FileName);
-                    populateInstanceTextBoxes();
-                    populateVisualisation();
-                    numOfStages.Text = machines.Length.ToString();
-                    numOfTasks.Text = taskTimes.GetLength(0).ToString();
-                    maxNumOfMachinesInStage.Text = machines.Max().ToString();
-                    maxTaskTime.Text = taskTimes.Cast<int>().Max().ToString();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "File load error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            // Allow only a leading minus sign and digits
+            Regex regex = new Regex("^-?[0-9]*$");
+            e.Handled = !regex.IsMatch(GetProposedText(sender as TextBox, e.Text));
         }
 
-        private void SaveBinaryFile(string filePath)
+        // Helper method to get the proposed text after the input
+        private string GetProposedText(TextBox textBox, string inputText)
         {
-            using (BinaryWriter writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
-            {
-                //writer.Write("MM");
-                // Write the length of the machines array
-                writer.Write(machines.Length);
+            if (textBox == null) return inputText;
 
-                // Write the machines array
-                foreach (int machine in machines)
-                {
-                    writer.Write(machine);
-                }
-
-                // Write the dimensions of the taskTimes array
-                writer.Write(taskTimes.GetLength(0)); // Number of rows
-                writer.Write(taskTimes.GetLength(1)); // Number of columns
-
-                // Write the taskTimes array
-                for (int i = 0; i < taskTimes.GetLength(0); i++)
-                {
-                    for (int j = 0; j < taskTimes.GetLength(1); j++)
-                    {
-                        writer.Write(taskTimes[i, j]);
-                    }
-                }
-            }
+            // Determine the text as if the new input was added
+            var textBefore = textBox.Text.Substring(0, textBox.SelectionStart);
+            var textAfter = textBox.Text.Substring(textBox.SelectionStart + textBox.SelectionLength);
+            return textBefore + inputText + textAfter;
         }
 
-        private void LoadBinaryFile(string filePath)
-        {
-            using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
-            {
-                // Read the length of the machines array
-                //string s = reader.ReadString();
-                int machinesLength = reader.ReadInt32();
-                int[] machinesFromFile = new int[machinesLength];
-                for (int i = 0; i < machinesLength; i++)
-                {
-                    machinesFromFile[i] = reader.ReadInt32();
-                }
-
-                // Read the dimensions of the taskTimes array
-                int rows = reader.ReadInt32();
-                int cols = reader.ReadInt32();
-                int[,] taskTimesFromFile = new int[rows, cols];
-
-                // Read the taskTimes array
-                for (int i = 0; i < rows; i++)
-                {
-                    for (int j = 0; j < cols; j++)
-                    {
-                        taskTimesFromFile[i, j] = reader.ReadInt32();
-                    }
-                }
-                // Validate data
-                machines = machinesFromFile;
-                taskTimes = taskTimesFromFile;
-            }
-        }
-
-        private void MachinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
-            ((TextBox)e.EditingElement).Text = val.ToString();
-            machines[e.Column.DisplayIndex] = val;
-            populateVisualisation();
-        }
     }
 }
