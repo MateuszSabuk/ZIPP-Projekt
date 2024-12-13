@@ -251,6 +251,7 @@ namespace ZippGUI
                     Margin = new Thickness(10, 0, 0, 0)
                 };
                 textBox.PreviewTextInput += new TextCompositionEventHandler(NumberValidationTextBoxChange);
+                textBox.LostFocus += new RoutedEventHandler(TextBox_LostFocus);
 
                 // Add the label and textbox to the paramPanel
                 paramPanel.Children.Add(label);
@@ -689,6 +690,27 @@ namespace ZippGUI
             var textBefore = textBox.Text.Substring(0, textBox.SelectionStart);
             var textAfter = textBox.Text.Substring(textBox.SelectionStart + textBox.SelectionLength);
             return textBefore + inputText + textAfter;
+        }
+
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                try
+                {
+                    string text = textBox.Text;
+                    if (string.IsNullOrWhiteSpace(text) || text == "-")
+                    {
+                        text = "0";
+                    }
+                    int value = int.Parse(text);
+                    textBox.Text = value.ToString();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Not a number", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
     }
