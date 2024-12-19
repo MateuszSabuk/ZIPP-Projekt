@@ -268,16 +268,23 @@ namespace ZippGUI
         /// </summary>
         private void SetParametersButtonClick(object sender, RoutedEventArgs e)
         {
-            if (runThread != null && runThread.IsAlive) return;
-            Dictionary<string, int> parameters = new Dictionary<string, int>();
-            foreach (StackPanel stackPanel in AlgorithmParamsPanel.Children)
+            try
             {
-                string? name = stackPanel.Children.OfType<Label>().First().Content.ToString();
-                name = name == null ? string.Empty : name; // Ensure name is not null
-                int value = int.Parse(stackPanel.Children.OfType<TextBox>().First().Text);
-                parameters[name] = value;
+                if (runThread != null && runThread.IsAlive) return;
+                Dictionary<string, int> parameters = new Dictionary<string, int>();
+                foreach (StackPanel stackPanel in AlgorithmParamsPanel.Children)
+                {
+                    string? name = stackPanel.Children.OfType<Label>().First().Content.ToString();
+                    name = name == null ? string.Empty : name; // Ensure name is not null
+                    int value = int.Parse(stackPanel.Children.OfType<TextBox>().First().Text);
+                    parameters[name] = value;
+                }
+                manager.setAlgorithmParams(AlgorithmChoice.SelectedIndex, parameters);
             }
-            manager.setAlgorithmParams(AlgorithmChoice.SelectedIndex, parameters);
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error parsing integer", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
 
@@ -285,10 +292,17 @@ namespace ZippGUI
 
         private void TasksDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
-            ((TextBox)e.EditingElement).Text = val.ToString();
-            taskTimes[e.Row.GetIndex(), e.Column.DisplayIndex - 1] = val;
-            createGanttVisualisationStages();
+            try
+            {
+                var val = Math.Max(1, int.Parse(((TextBox)e.EditingElement).Text));
+                ((TextBox)e.EditingElement).Text = val.ToString();
+                taskTimes[e.Row.GetIndex(), e.Column.DisplayIndex - 1] = val;
+                createGanttVisualisationStages();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error parsing integer", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void MachinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
